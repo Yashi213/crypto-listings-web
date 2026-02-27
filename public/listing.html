@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Listing Tracker - актуальная информация о новых листингах криптовалют на Binance, Bybit, OKX и других биржах">
+    <meta name="keywords" content="листинг, криптовалюта, биржа, трекер, новые монеты, Binance, Bybit, OKX">
+    <title>Listing Tracker - отслеживание новых листингов</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="js/main.js"></script>
+</head> 
+<body>
+<header class="header">
+    <div class="header__nav">
+        <div class="header__logo-group">
+            <a href="listing.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;">
+                <img src="img/logo.svg" alt="Логотип Listing Tracker" width="40" height="40" class="header__logo" />
+                <h1 class="header__title">Listing Tracker</h1>
+            </a>
+        </div>
+        <nav class="nav">
+            <ul class="nav__list">
+                <li><a class="nav__link nav__link--active" href="listing.html">Главная</a></li>
+                <li><a class="nav__link" href="feedback.html">Обратная связь</a></li>
+                <li><a class="nav__link" href="privacy.html">Политика конфиденциальности</a></li>
+                <li><a class="nav__link" href="terms.html">Условия использования</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main class="main">
+    <section class="news-section">
+        <h2>Новости рынка</h2>
+        <div class="news-row">
+            <article class="news-card">
+                <img src="img/binance.png" alt="Binance" class="news-card__img">
+                <h3 class="news-card__title">Binance анонсировал 5 новых листингов</h3>
+                <p class="news-card__date">19 января 2024</p>
+            </article>
+            <article class="news-card">
+                <img src="img/bybit.png" alt="Bybit" class="news-card__img">
+                <h3 class="news-card__title">Bybit запустил торговлю мемкоинами</h3>
+                <p class="news-card__date">18 января 2024</p>
+            </article>
+            <article class="news-card">
+                <img src="img/okx.png" alt="OKX" class="news-card__img">
+                <h3 class="news-card__title">OKX добавил поддержку новых сетей</h3>
+                <p class="news-card__date">17 января 2024</p>
+            </article>
+            <article class="news-card">
+                <img src="img/kucoin.png" alt="KuCoin" class="news-card__img">
+                <h3 class="news-card__title">KuCoin обновил условия листинга</h3>
+                <p class="news-card__date">16 января 2024</p>
+            </article>
+            <article class="news-card">
+                <img src="img/gateio.png" alt="Gate.io" class="news-card__img">
+                <h3 class="news-card__title">Gate.io расширил список торговых пар</h3>
+                <p class="news-card__date">15 января 2024</p>
+            </article>
+            <article class="news-card">
+                <img src="img/mexc.png" alt="MEXC" class="news-card__img">
+                <h3 class="news-card__title">MEXC запустил новую программу листинга</h3>
+                <p class="news-card__date">14 января 2024</p>
+            </article>
+            <article class="news-card">
+                <img src="img/binance.png" alt="Binance" class="news-card__img">
+                <h3 class="news-card__title">Binance добавил поддержку новых токенов</h3>
+                <p class="news-card__date">13 января 2024</p>
+            </article>
+            <article class="news-card">
+                <img src="img/bybit.png" alt="Bybit" class="news-card__img">
+                <h3 class="news-card__title">Bybit улучшил скорость обработки ордеров</h3>
+                <p class="news-card__date">12 января 2024</p>
+            </article>
+        </div>
+    </section>
+
+    <section id="exchanges" class="exchanges">
+        <h2>Выбор биржи</h2>
+        <form class="exchanges__form form">
+            <fieldset class="form__fieldset">
+                <legend class="form__legend">Выберите биржи для отображения:</legend>
+                <div class="form__checkboxes">
+                    <label class="form__label">
+                        <input class="form__checkbox" type="checkbox" name="exchange" value="binance" checked> Binance
+                    </label>
+                    <label class="form__label">
+                        <input class="form__checkbox" type="checkbox" name="exchange" value="bybit" checked> Bybit
+                    </label>
+                    <label class="form__label">
+                        <input class="form__checkbox" type="checkbox" name="exchange" value="okx" checked> OKX
+                    </label>
+                    <label class="form__label">
+                        <input class="form__checkbox" type="checkbox" name="exchange" value="kucoin"> KuCoin
+                    </label>
+                    <label class="form__label">
+                        <input class="form__checkbox" type="checkbox" name="exchange" value="gateio"> Gate.io
+                    </label>
+                    <label class="form__label">
+                        <input class="form__checkbox" type="checkbox" name="exchange" value="mexc"> MEXC
+                    </label>
+                </div>
+            </fieldset>
+        </form>
+    </section>
+
+    <div class="listings-grid">
+        <section id="upcoming" class="listing-section">
+            <h2>Предстоящие листинги</h2>
+            <div class="listing-cards">
+            <article class="listing-card">
+                <h3 class="listing-card__title">Quantum AI (QAI)</h3>
+                <p class="listing-card__exchange"><strong>Биржа:</strong> Binance</p>
+                <p class="listing-card__date"><strong>Дата:</strong> <time datetime="2024-01-20T14:00">20 января 14:00 UTC</time></p>
+                <p class="listing-card__pairs"><em>Торговые пары:</em> QAI/USDT, QAI/BTC</p>
+                <p class="text--inserted"><ins>Новая информация:</ins> Добавлена торговая пара QAI/ETH</p>
+            </article>
+
+            <article class="listing-card">
+                <h3 class="listing-card__title">Neural Protocol (NRP)</h3>
+                <p class="listing-card__exchange"><strong>Биржа:</strong> Bybit</p>
+                <p class="listing-card__date"><strong>Дата:</strong> <time datetime="2024-01-22T10:00">22 января 10:00 UTC</time></p>
+                <p class="text--deleted">Первоначально планировался на <del>18 января</del></p>
+            </article>
+
+            <article class="listing-card">
+                <h3 class="listing-card__title">Meta Gaming (MGAME)</h3>
+                <p class="listing-card__exchange"><strong>Биржа:</strong> OKX</p>
+                <p class="listing-card__date"><strong>Дата:</strong> <time datetime="2024-01-25T16:30">25 января 16:30 UTC</time></p>
+                <p class="text--important"><strong>Важно:</strong> Только спот-торговля</p>
+            </article>
+
+            <article class="listing-card">
+                <h3 class="listing-card__title">Stellar Finance (STFI)</h3>
+                <p class="listing-card__exchange"><strong>Биржа:</strong> KuCoin</p>
+                <p class="listing-card__date"><strong>Дата:</strong> <time datetime="2024-01-28T12:00">28 января 12:00 UTC</time></p>
+                <p class="listing-card__pairs"><em>Торговые пары:</em> STFI/USDT</p>
+            </article>
+
+            <article class="listing-card">
+                <h3 class="listing-card__title">Ocean Protocol (OCN)</h3>
+                <p class="listing-card__exchange"><strong>Биржа:</strong> Gate.io</p>
+                <p class="listing-card__date"><strong>Дата:</strong> <time datetime="2024-01-30T09:00">30 января 09:00 UTC</time></p>
+            </article>
+            </div>
+        </section>
+
+        <section id="recent" class="listing-section">
+            <h2>Недавние листинги</h2>
+            <div class="listing-cards">
+            <article class="listing-card">
+                <h3 class="listing-card__title">Web3 Foundation (W3F)</h3>
+                <p class="listing-card__exchange"><strong>Биржа:</strong> Binance</p>
+                <p class="listing-card__date"><strong>Дата листинга:</strong> 15 января 2024</p>
+                <p class="listing-card__change--positive"><strong>Изменение цены:</strong> +32% с листинга</p>
+            </article>
+
+            <article class="listing-card">
+                <h3 class="listing-card__title">DeFi Alliance (DFA)</h3>
+                <p class="listing-card__exchange"><strong>Биржа:</strong> Bybit</p>
+                <p class="listing-card__date"><strong>Дата листинга:</strong> 12 января 2024</p>
+                <p class="listing-card__change--negative"><strong>Изменение цены:</strong> -8% с листинга</p>
+            </article>
+
+            <article class="listing-card">
+                <h3 class="listing-card__title">Crypto Venture (CVT)</h3>
+                <p class="listing-card__exchange"><strong>Биржа:</strong> OKX</p>
+                <p class="listing-card__date"><strong>Дата листинга:</strong> 10 января 2024</p>
+                <p class="listing-card__pairs"><strong>Особенности:</strong> <em>Высокая волатильность</em></p>
+            </article>
+
+            <article class="listing-card">
+                <h3 class="listing-card__title">Neo Token (NEO)</h3>
+                <p class="listing-card__exchange"><strong>Биржа:</strong> KuCoin</p>
+                <p class="listing-card__date"><strong>Дата листинга:</strong> 8 января 2024</p>
+                <p class="listing-card__change--positive"><strong>Изменение цены:</strong> +15% с листинга</p>
+            </article>
+
+            <article class="listing-card">
+                <h3 class="listing-card__title">Polygon Labs (POL)</h3>
+                <p class="listing-card__exchange"><strong>Биржа:</strong> Gate.io</p>
+                <p class="listing-card__date"><strong>Дата листинга:</strong> 5 января 2024</p>
+                <p class="listing-card__change--positive"><strong>Изменение цены:</strong> +25% с листинга</p>
+            </article>
+            </div>
+        </section>
+    </div>
+
+    <section id="stats" class="stats-section">
+        <h2>Статистика листингов</h2>
+        <table class="stats-table">
+            <thead>
+                <tr>
+                    <th>Биржа</th>
+                    <th>Листингов</th>
+                    <th>Средний рост</th>
+                    <th>Лучший</th>
+                    <th class="hide-mobile">Худший</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td data-label="Биржа">Binance</td>
+                    <td data-label="Листингов">12</td>
+                    <td data-label="Средний рост">+45%</td>
+                    <td data-label="Лучший">+320%</td>
+                    <td data-label="Худший" class="hide-mobile">-15%</td>
+                </tr>
+                <tr>
+                    <td data-label="Биржа">Bybit</td>
+                    <td data-label="Листингов">18</td>
+                    <td data-label="Средний рост">+28%</td>
+                    <td data-label="Лучший">+180%</td>
+                    <td data-label="Худший" class="hide-mobile">-22%</td>
+                </tr>
+                <tr>
+                    <td data-label="Биржа">OKX</td>
+                    <td data-label="Листингов">15</td>
+                    <td data-label="Средний рост">+35%</td>
+                    <td data-label="Лучший">+250%</td>
+                    <td data-label="Худший" class="hide-mobile">-18%</td>
+                </tr>
+                <tr>
+                    <td data-label="Биржа">KuCoin</td>
+                    <td data-label="Листингов">24</td>
+                    <td data-label="Средний рост">+22%</td>
+                    <td data-label="Лучший">+150%</td>
+                    <td data-label="Худший" class="hide-mobile">-30%</td>
+                </tr>
+                <tr>
+                    <td data-label="Биржа">Gate.io</td>
+                    <td data-label="Листингов">32</td>
+                    <td data-label="Средний рост">+18%</td>
+                    <td data-label="Лучший">+120%</td>
+                    <td data-label="Худший" class="hide-mobile">-35%</td>
+                </tr>
+                <tr>
+                    <td data-label="Биржа">MEXC</td>
+                    <td data-label="Листингов">45</td>
+                    <td data-label="Средний рост">+15%</td>
+                    <td data-label="Лучший">+100%</td>
+                    <td data-label="Худший" class="hide-mobile">-40%</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="about" class="about">
+        <h2>О проекте</h2>
+        <article>
+            <p><strong>Listing Tracker</strong> - это агрегатор информации о листингах криптовалют на различных биржах.</p>
+
+            <blockquote class="about__quote">
+                "В крипте <em>время решает всё</em>. Получение информации о листингах на несколько секунд раньше может существенно повлиять на вашу торговую стратегию."
+                <cite class="about__cite">— Основатель проекта</cite>
+            </blockquote>
+
+            <p>Мы используем <strong>автоматический мониторинг</strong> официальных каналов бирж и <ins>ручную проверку</ins> всей информации.</p>
+
+            <h3>Наши преимущества:</h3>
+            <ul class="about__list">
+                <li class="about__list-item">Мгновенные уведомления о новых листингах</li>
+                <li class="about__list-item">Покрытие всех основных бирж</li>
+                <li class="about__list-item">Точные даты и время</li>
+                <li class="about__list-item">Информация о торговых парах</li>
+            </ul>
+        </article>
+
+        <div class="supported-exchanges">
+            <h3>Поддерживаемые биржи</h3>
+            <div class="supported-exchanges__logos">
+                <img src="img/binance.png" alt="Binance" width="56" height="56">
+                <img src="img/bybit.png" alt="Bybit" width="56" height="56">
+                <img src="img/okx.png" alt="OKX" width="56" height="56">
+                <img src="img/kucoin.png" alt="KuCoin" width="56" height="56">
+                <img src="img/gateio.png" alt="Gate.io" width="56" height="56">
+                <img src="img/mexc.png" alt="MEXC" width="56" height="56">
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="faq">
+        <h2>Часто задаваемые вопросы (FAQ)</h2>
+
+        <article class="faq__item">
+            <h3>Как часто обновляется информация о листингах?</h3>
+            <p>Информация обновляется <strong>каждую секунду</strong>. Мы напрямую подключаемся по сокету к биржам.</p>
+        </article>
+
+        <article class="faq__item">
+            <h3>Насколько точны даты листингов?</h3>
+            <p>Даты указываются на основе официальной информации от бирж. Однако даты могут меняться, о чем мы сразу сообщаем через пометку <del>старая дата</del> и <ins>новая дата</ins>.</p>
+        </article>
+
+        <article class="faq__item">
+            <h3>Как получать уведомления о новых листингах?</h3>
+            <p>Soon</p>
+        </article>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="footer__banner hide-mobile">
+        <div class="footer__banner-content">
+            <span class="footer__banner-icon">🚀</span>
+            <p class="footer__banner-text">
+                <strong>Премиум подписка:</strong> Получайте листинги на 5 минут раньше всех! 
+                <a href="#premium" class="footer__banner-link">Попробовать бесплатно →</a>
+            </p>
+        </div>
+    </div>
+    
+    <div class="footer__content">
+        <address class="footer__address">
+            <p>Контакты: info@listing-tracker.com</p>
+            <p>Telegram: @listing_tracker</p>
+        </address>
+        <p>&copy; 2024 Listing Tracker. Все права защищены.</p>
+        <nav class="footer__nav">
+            <ul class="footer__list">
+                <li><a class="footer__link" href="privacy.html">Политика конфиденциальности</a></li>
+                <li><a class="footer__link" href="terms.html">Условия использования</a></li>
+            </ul>
+        </nav>
+    </div>
+</footer>
+</body>
+</html>
