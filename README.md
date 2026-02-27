@@ -5,7 +5,7 @@
 важная информация и так далее. 
 Будет информация о прошеедших листингах, с кратким описанием важных моментов.
 
-https://m3307-polyak-6sem.onrender.com/
+https://m3307-polyak-6sem.onrender.com
 
 ### Макет
 ![img_1.png](public/img/layout.png)

@@ -1,0 +1,12 @@
+header.header
+  .header__nav
+    .header__logo-group
+      a(href="/" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none;")
+        img.header__logo(src="/img/logo.svg" alt="Логотип Listing Tracker" width="40" height="40")
+        h1.header__title Listing Tracker
+    include menu
+    .session-info(class=isAuth ? 'session-info--auth' : 'session-info--guest')
+      if isAuth
+        include session-auth
+      else
+        include session-guest

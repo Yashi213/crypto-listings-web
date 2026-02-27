@@ -1,0 +1,39 @@
+article.listing-card
+  h3.listing-card__title= item.title
+  p.listing-card__exchange
+    strong Биржа:
+    |  #{item.exchange}
+  p.listing-card__date
+    strong= item.dateLabel + ':'
+    |  
+    if item.datetime
+      time(datetime=item.datetime)= item.dateText
+    else
+      | #{item.dateText}
+  if item.pairs
+    p.listing-card__pairs
+      em Торговые пары:
+      |  #{item.pairs}
+  if item.extraInserted
+    p.text--inserted
+      ins Новая информация:
+      |  #{item.extraInserted}
+  if item.extraDeleted
+    p.text--deleted!= item.extraDeleted
+  if item.extraImportant
+    p.text--important
+      strong Важно:
+      |  #{item.extraImportant}
+  if item.changePositive
+    p.listing-card__change--positive
+      strong Изменение цены:
+      |  #{item.changePositive}
+  if item.changeNegative
+    p.listing-card__change--negative
+      strong Изменение цены:
+      |  #{item.changeNegative}
+  if item.features
+    p.listing-card__pairs
+      strong Особенности:
+      |  
+      em= item.features

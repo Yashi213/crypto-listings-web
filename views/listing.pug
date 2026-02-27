@@ -1,0 +1,105 @@
+doctype html
+html(lang="ru")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    meta(name="description" content="Listing Tracker - актуальная информация о новых листингах криптовалют на Binance, Bybit, OKX и других биржах")
+    meta(name="keywords" content="листинг, криптовалюта, биржа, трекер, новые монеты, Binance, Bybit, OKX")
+    title Listing Tracker - отслеживание новых листингов
+    include partials/styles
+  body
+    include partials/header
+    main.main
+      section.news-section
+        h2 Новости рынка
+        .news-row
+          each item in newsCards
+            include partials/news-card
+      section#exchanges.exchanges
+        h2 Выбор биржи
+        form.exchanges__form.form
+          fieldset.form__fieldset
+            legend.form__legend Выберите биржи для отображения:
+            .form__checkboxes
+              label.form__label
+                input.form__checkbox(type="checkbox" name="exchange" value="binance" checked)
+                | Binance
+              label.form__label
+                input.form__checkbox(type="checkbox" name="exchange" value="bybit" checked)
+                | Bybit
+              label.form__label
+                input.form__checkbox(type="checkbox" name="exchange" value="okx" checked)
+                | OKX
+              label.form__label
+                input.form__checkbox(type="checkbox" name="exchange" value="kucoin")
+                | KuCoin
+              label.form__label
+                input.form__checkbox(type="checkbox" name="exchange" value="gateio")
+                | Gate.io
+              label.form__label
+                input.form__checkbox(type="checkbox" name="exchange" value="mexc")
+                | MEXC
+      .listings-grid
+        section#upcoming.listing-section
+          h2 Предстоящие листинги
+          .listing-cards
+            each item in upcomingListings
+              include partials/listing-card
+        section#recent.listing-section
+          h2 Недавние листинги
+          .listing-cards
+            each item in recentListings
+              include partials/listing-card
+      section#stats.stats-section
+        h2 Статистика листингов
+        table.stats-table
+          thead
+            tr
+              th Биржа
+              th Листингов
+              th Средний рост
+              th Лучший
+              th.hide-mobile Худший
+          tbody
+            each row in statsRows
+              tr
+                td(data-label="Биржа")= row.exchange
+                td(data-label="Листингов")= row.count
+                td(data-label="Средний рост")= row.avg
+                td(data-label="Лучший")= row.best
+                td.hide-mobile(data-label="Худший")= row.worst
+      section#about.about
+        h2 О проекте
+        article
+          p
+            strong Listing Tracker
+            |  - это агрегатор информации о листингах криптовалют на различных биржах.
+          blockquote.about__quote
+            | "В крипте 
+            em время решает всё
+            | . Получение информации о листингах на несколько секунд раньше может существенно повлиять на вашу торговую стратегию."
+            cite.about__cite — Основатель проекта
+          p Мы используем 
+            strong автоматический мониторинг
+            |  официальных каналов бирж и 
+            ins ручную проверку
+            |  всей информации.
+          h3 Наши преимущества:
+          ul.about__list
+            li.about__list-item Мгновенные уведомления о новых листингах
+            li.about__list-item Покрытие всех основных бирж
+            li.about__list-item Точные даты и время
+            li.about__list-item Информация о торговых парах
+        .supported-exchanges
+          h3 Поддерживаемые биржи
+          .supported-exchanges__logos
+            each logo in exchangeLogos
+              img(src=logo.src alt=logo.alt width="56" height="56")
+      section#faq.faq
+        h2 Часто задаваемые вопросы (FAQ)
+        each faqItem in faq
+          article.faq__item
+            h3= faqItem.question
+            p= faqItem.answer
+    include partials/footer
+    include partials/scripts
