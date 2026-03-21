@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum ListingStatus {
+  UPCOMING
+  RECENT
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  displayName String
+  role        UserRole @default(USER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  feedbacks Feedback[]
+  favorites Favorite[]
+}
+
+model Exchange {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  website   String?
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listings Listing[]
+}
+
+model Listing {
+  id          String        @id @default(cuid())
+  title       String
+  status      ListingStatus
+  dateAt      DateTime
+  description String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  exchangeId String
+  exchange   Exchange @relation(fields: [exchangeId], references: [id], onDelete: Cascade)
+
+  pairs     TradingPair[]
+  favorites Favorite[]
+}
+
+model TradingPair {
+  id         String   @id @default(cuid())
+  baseAsset  String
+  quoteAsset String
+  createdAt  DateTime @default(now())
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([listingId, baseAsset, quoteAsset])
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  message   String
+  rating    Int?
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Favorite {
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@id([userId, listingId])
+}

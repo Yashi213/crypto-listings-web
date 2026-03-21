@@ -9,3 +9,5 @@ https://m3307-polyak-6sem.onrender.com
 
 ### Макет
 ![img_1.png](public/img/layout.png)
+
+![img.png](img.png)
