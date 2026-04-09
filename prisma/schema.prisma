@@ -28,6 +28,39 @@ model User {
   favorites Favorite[]
 }
 
+/// Криптоактив (монета/токен): справочник для листингов и пар
+model Asset {
+  id          String   @id @default(cuid())
+  symbol      String   @unique
+  name        String
+  description String?
+  website     String?
+  logoUrl     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  listingsPrimary Listing[]     @relation("ListingPrimaryAsset")
+  pairsAsBase     TradingPair[] @relation("TradingPairBase")
+  pairsAsQuote    TradingPair[] @relation("TradingPairQuote")
+}
+
+/// Новости рынка (блок на главной); источник — конкретная биржа
+model MarketNews {
+  id          String   @id @default(cuid())
+  title       String
+  publishedAt DateTime
+  imageUrl    String
+  imageAlt    String
+  summary     String?
+  sourceUrl   String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  exchangeId String
+  exchange   Exchange @relation(fields: [exchangeId], references: [id], onDelete: Cascade)
+}
+
 model Exchange {
   id        String   @id @default(cuid())
   name      String   @unique
@@ -36,7 +69,8 @@ model Exchange {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  listings Listing[]
+  listings  Listing[]
+  marketNews MarketNews[]
 }
 
 model Listing {
@@ -51,20 +85,27 @@ model Listing {
   exchangeId String
   exchange   Exchange @relation(fields: [exchangeId], references: [id], onDelete: Cascade)
 
+  assetId String?
+  asset   Asset? @relation("ListingPrimaryAsset", fields: [assetId], references: [id], onDelete: SetNull)
+
   pairs     TradingPair[]
   favorites Favorite[]
 }
 
 model TradingPair {
-  id         String   @id @default(cuid())
-  baseAsset  String
-  quoteAsset String
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
 
   listingId String
   listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
-  @@unique([listingId, baseAsset, quoteAsset])
+  baseAssetId String
+  baseAsset   Asset @relation("TradingPairBase", fields: [baseAssetId], references: [id], onDelete: Restrict)
+
+  quoteAssetId String
+  quoteAsset   Asset @relation("TradingPairQuote", fields: [quoteAssetId], references: [id], onDelete: Restrict)
+
+  @@unique([listingId, baseAssetId, quoteAssetId])
 }
 
 model Feedback {
