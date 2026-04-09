@@ -1,0 +1,37 @@
+extends ../layout
+
+block content
+  main.main
+    h2 Листинги
+    p.crud-toolbar
+      a.btn(href="/listings/add") + Добавить листинг
+    if items.length === 0
+      p Записей нет. Нужны биржа и при необходимости активы в справочниках.
+    else
+      table.stats-table
+        thead
+          tr
+            th Статус
+            th Название
+            th Биржа
+            th Дата
+            th Пары
+            th.stats-table__actions Действия
+        tbody
+          each row in items
+            tr
+              td(data-label="Статус")= row.status === 'UPCOMING' ? 'Предстоящий' : 'Недавний'
+              td(data-label="Название")
+                a(href=`/listings/${row.id}`)= row.title
+              td(data-label="Биржа")= row.exchange.name
+              td(data-label="Дата")= row.dateAt.toLocaleString('ru-RU')
+              td(data-label="Пары")
+                if row.pairs.length === 0
+                  | —
+                else
+                  = row.pairs.map(function (pair) { return pair.baseAsset.symbol + '/' + pair.quoteAsset.symbol; }).join(', ')
+              td.stats-table__actions(data-label="Действия")
+                a(href=`/listings/${row.id}/edit`) Изменить
+                |  
+                form.inline-delete(method="post" action=`/listings/${row.id}/delete` style="display:inline" onsubmit="return confirm('Удалить листинг и связанные пары?');")
+                  button.link-button(type="submit") Удалить

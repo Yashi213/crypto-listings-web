@@ -1,0 +1,45 @@
+extends ../layout
+
+block content
+  main.main
+    h2 Новый листинг
+    if exchanges.length === 0
+      p Сначала добавьте биржу в&nbsp;
+        a(href="/exchanges/add") справочнике
+        | .
+    else
+      p После сохранения откройте карточку листинга — там можно добавить торговые пары (нужны активы в&nbsp;
+        a(href="/assets") справочнике
+        | ).
+      form.form(method="post" action="/listings")
+        fieldset.form__fieldset
+          legend.form__legend Поля
+          label.form__label
+            | Название / тикер (как на сайте)
+            input.form__input(type="text" name="title" required maxlength="240")
+          label.form__label
+            | Биржа
+            select.form__input(name="exchangeId" required)
+              each ex in exchanges
+                option(value=ex.id)= ex.name
+          label.form__label
+            | Статус
+            select.form__input(name="status" required)
+              option(value="UPCOMING") Предстоящий (UPCOMING)
+              option(value="RECENT") Недавний (RECENT)
+          label.form__label
+            | Дата и время (события листинга)
+            input.form__input(type="datetime-local" name="dateAt" required)
+          label.form__label
+            | Описание / заметки (необязательно)
+            textarea.form__textarea(name="description" rows="3")
+          label.form__label
+            | Основной актив (необязательно)
+            select.form__input(name="assetId")
+              option(value="") —
+              each a in assets
+                option(value=a.id)= a.symbol + ' — ' + a.name
+        p
+          button.btn(type="submit") Сохранить
+          |  
+          a.nav__link(href="/listings") Отмена

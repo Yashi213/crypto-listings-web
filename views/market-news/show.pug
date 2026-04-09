@@ -1,0 +1,24 @@
+extends ../layout
+
+block content
+  main.main.record-detail
+    h2.record-detail__heading= news.title
+    p
+      strong Биржа:
+      |  #{news.exchange.name}
+    p
+      strong Дата:
+      |  #{news.publishedAt.toLocaleString('ru-RU')}
+    p
+      img(src=news.imageUrl alt=news.imageAlt style="max-width:100%;max-height:240px")
+    if news.summary
+      p= news.summary
+    if news.sourceUrl
+      p
+        a.record-detail__link-external(href=news.sourceUrl target="_blank" rel="noopener noreferrer" title=news.sourceUrl) Открыть источник
+    nav.record-detail__actions
+      a.nav__link(href=`/market-news/${news.id}/edit`) Редактировать
+      a.nav__link(href="/market-news") К списку
+    .record-detail__danger
+      form.inline-delete(method="post" action=`/market-news/${news.id}/delete` onsubmit="return confirm('Удалить?');")
+        button.link-button(type="submit") Удалить

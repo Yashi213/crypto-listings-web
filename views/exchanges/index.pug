@@ -1,0 +1,31 @@
+extends ../layout
+
+block content
+  main.main
+    h2 Биржи
+    p.crud-toolbar
+      a.btn(href="/exchanges/add") + Добавить биржу
+    if exchanges.length === 0
+      p Пока нет записей. Создайте первую биржу.
+    else
+      table.stats-table
+        thead
+          tr
+            th Название
+            th Сайт
+            th.stats-table__actions Действия
+        tbody
+          each ex in exchanges
+            tr
+              td(data-label="Название")
+                a(href=`/exchanges/${ex.id}`)= ex.name
+              td(data-label="Сайт")
+                if ex.website
+                  a(href=ex.website target="_blank" rel="noopener noreferrer") #{ex.website}
+                else
+                  | —
+              td.stats-table__actions(data-label="Действия")
+                a(href=`/exchanges/${ex.id}/edit`) Изменить
+                |  
+                form.inline-delete(method="post" action=`/exchanges/${ex.id}/delete` style="display:inline" onsubmit="return confirm('Удалить биржу? Связанные листинги и новости тоже могут быть затронуты.');")
+                  button.link-button(type="submit") Удалить

@@ -1,20 +1,90 @@
-doctype html
-html(lang="ru")
-  head
-    meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1.0")
-    meta(name="description" content="Обратная связь - оставьте свой отзыв о Listing Tracker")
-    meta(name="keywords" content="обратная связь, отзыв, контакты")
-    title Обратная связь - Listing Tracker
-    include partials/styles
-  body
-    include partials/header
-    main.main
-      #feedback-root
-      #api-comments-root
-    include partials/footer
-    script(crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js")
-    script(crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js")
-    script(type="module" src="/js/main.js")
-    script(type="module" src="/js/feedback-app.js")
-    script(type="module" src="/js/api-app.js")
+extends layout
+
+block headMeta
+  meta(name="description" content="Обратная связь - оставьте свой отзыв о Listing Tracker")
+  meta(name="keywords" content="обратная связь, отзыв, контакты")
+
+block content
+  main.main
+    if showSaved
+      p(style="padding:1rem;background:#ecfdf5;border-radius:0.5rem;margin-bottom:1rem") Спасибо! Отзыв сохранён.
+    section.feedback-section
+      h2 Обратная связь
+      p Мы ценим ваше мнение! Поделитесь своими впечатлениями о нашем сервисе или задайте вопрос.
+      form.feedback-form(method="post" action="/feedbacks")
+        input(type="hidden" name="next" value="/feedback?saved=1")
+        fieldset.form__fieldset
+          legend.form__legend Заполните форму обратной связи
+          .form__group
+            label.form__label-text(for="displayName")
+              | ФИО 
+              span.form__required *
+            input#displayName.form__input(
+              type="text"
+              name="displayName"
+              required
+              minlength="3"
+              maxlength="100"
+              pattern="[А-Яа-яЁёA-Za-z\\s]{3,}"
+              placeholder="Иванов Иван Иванович"
+            )
+          .form__group
+            label.form__label-text(for="email")
+              | Email 
+              span.form__required *
+            input#email.form__input(
+              type="email"
+              name="email"
+              required
+              placeholder="example@mail.com"
+            )
+          .form__group
+            label.form__label-text(for="message")
+              | Комментарий 
+              span.form__required *
+            textarea#message.form__textarea(
+              name="message"
+              required
+              minlength="10"
+              maxlength="1000"
+              rows="5"
+              placeholder="Ваш отзыв или вопрос..."
+            )
+          .form__group
+            label.form__label-text(for="rating") Оценка
+            select#rating.form__select(name="rating")
+              option(value="" selected) Выберите оценку
+              option(value="5") Отлично (5)
+              option(value="4") Хорошо (4)
+              option(value="3") Удовлетворительно (3)
+              option(value="2") Плохо (2)
+              option(value="1") Очень плохо (1)
+          div(style="display:flex;gap:1rem;flex-wrap:wrap")
+            button.form__submit(type="submit") Отправить отзыв
+    section.feedback-list-section
+      h2 Отзывы пользователей
+      if recentFeedbacks.length === 0
+        .feedback-list
+          p(style="text-align:center;color:var(--text-light);padding:2rem") Пока нет отзывов. Будьте первым!
+      else
+        .feedback-list
+          each f in recentFeedbacks
+            article.feedback-item
+              .feedback-item__header
+                h3.feedback-item__name= f.user.displayName
+                .feedback-item__meta
+                  if f.user.email === 'guest@listing-tracker.local'
+                    span.feedback-item__email —
+                  else
+                    span.feedback-item__email= f.user.email
+                  span.feedback-item__date= f.createdAt.toLocaleDateString('ru-RU')
+                  if f.rating != null
+                    span.feedback-item__rating= '★'.repeat(f.rating)
+              p.feedback-item__comment(style="white-space:pre-wrap")= f.message
+    #api-comments-root
+
+block pageScripts
+  script(crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js")
+  script(crossorigin src="https://unpkg.com/react@18/umd/react-dom.production.min.js")
+  script(type="module" src="/js/main.js")
+  script(type="module" src="/js/api-app.js")

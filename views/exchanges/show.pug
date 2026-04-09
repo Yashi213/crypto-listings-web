@@ -1,0 +1,24 @@
+extends ../layout
+
+block content
+  main.main.record-detail
+    h2.record-detail__heading= exchange.name
+    dl.record-detail__dl
+      dt Сайт
+      dd
+        if exchange.website
+          a.record-detail__link-external(href=exchange.website target="_blank" rel="noopener noreferrer" title=exchange.website) Открыть сайт
+        else
+          | —
+      dt Логотип
+      dd
+        if exchange.logoUrl
+          img.record-detail__thumb(src=exchange.logoUrl alt=exchange.name loading="lazy")
+        else
+          | —
+    nav.record-detail__actions
+      a.nav__link(href=`/exchanges/${exchange.id}/edit`) Редактировать
+      a.nav__link(href="/exchanges") К списку
+    .record-detail__danger
+      form.inline-delete(method="post" action=`/exchanges/${exchange.id}/delete` onsubmit="return confirm('Удалить биржу?');")
+        button.link-button(type="submit") Удалить

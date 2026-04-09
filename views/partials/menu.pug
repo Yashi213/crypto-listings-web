@@ -1,10 +1,14 @@
-nav.nav
+nav.nav(aria-label="Основное меню")
   ul.nav__list
     li
       a(href="/" class=activeListing ? 'nav__link nav__link--active' : 'nav__link') Главная
     li
-      a(href="/feedback" class=activeFeedback ? 'nav__link nav__link--active' : 'nav__link') Обратная связь
+      a(href="/assets" class=activeAssetsCrud ? 'nav__link nav__link--active' : 'nav__link') Активы
     li
-      a(href="/privacy" class=activePrivacy ? 'nav__link nav__link--active' : 'nav__link') Политика конфиденциальности
+      a(href="/listings" class=activeListingsCrud ? 'nav__link nav__link--active' : 'nav__link') Листинги
     li
-      a(href="/terms" class=activeTerms ? 'nav__link nav__link--active' : 'nav__link') Условия использования
+      a(href="/exchanges" class=activeExchanges ? 'nav__link nav__link--active' : 'nav__link') Биржи
+    li
+      a(href="/market-news" class=activeMarketNews ? 'nav__link nav__link--active' : 'nav__link') Новости
+    li
+      a(href="/feedback" title="Обратная связь" class=activeFeedback ? 'nav__link nav__link--active' : 'nav__link') Связь

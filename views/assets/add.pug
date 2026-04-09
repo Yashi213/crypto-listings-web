@@ -1,0 +1,29 @@
+extends ../layout
+
+block content
+  main.main.crud-form
+    h2 Новый актив
+    form.form(method="post" action="/assets" enctype="multipart/form-data")
+      fieldset.form__fieldset
+        legend.form__legend Актив
+        label.form__label
+          | Тикер
+          input.form__input(type="text" name="symbol" required maxlength="32" placeholder="BTC")
+        label.form__label
+          | Название
+          input.form__input(type="text" name="name" required maxlength="200")
+        label.form__label
+          | Описание
+          textarea.form__textarea(name="description" rows="2")
+        label.form__label
+          | Сайт
+          input.form__input(type="url" name="website" placeholder="https://…")
+        label.form__label
+          | Логотип
+          input.form__input(type="file" name="logoFile" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml")
+        label.form__label
+          | URL логотипа
+          input.form__input(type="url" name="logoUrl" placeholder="Необязательно, если выбран файл")
+      p(style="margin:1.5rem 0 0;display:flex;flex-wrap:wrap;gap:0.75rem 1rem;align-items:center")
+        button.btn(type="submit") Сохранить
+        a.nav__link(href="/assets") Отмена

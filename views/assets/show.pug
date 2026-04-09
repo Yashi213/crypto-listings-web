@@ -1,0 +1,26 @@
+extends ../layout
+
+block content
+  main.main.record-detail
+    h2.record-detail__heading= asset.symbol + ' — ' + asset.name
+    if asset.description
+      p(style="white-space:pre-wrap;margin-top:0")= asset.description
+    dl.record-detail__dl
+      dt Сайт
+      dd
+        if asset.website
+          a.record-detail__link-external(href=asset.website target="_blank" rel="noopener noreferrer" title=asset.website) Открыть сайт
+        else
+          | —
+      dt Логотип
+      dd
+        if asset.logoUrl
+          img.record-detail__thumb(src=asset.logoUrl alt=asset.symbol loading="lazy")
+        else
+          | —
+    nav.record-detail__actions
+      a.nav__link(href=`/assets/${asset.id}/edit`) Редактировать
+      a.nav__link(href="/assets") К списку
+    .record-detail__danger
+      form.inline-delete(method="post" action=`/assets/${asset.id}/delete` onsubmit="return confirm('Удалить?');")
+        button.link-button(type="submit") Удалить

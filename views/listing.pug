@@ -1,57 +1,59 @@
-doctype html
-html(lang="ru")
-  head
-    meta(charset="UTF-8")
-    meta(name="viewport" content="width=device-width, initial-scale=1.0")
-    meta(name="description" content="Listing Tracker - актуальная информация о новых листингах криптовалют на Binance, Bybit, OKX и других биржах")
-    meta(name="keywords" content="листинг, криптовалюта, биржа, трекер, новые монеты, Binance, Bybit, OKX")
-    title Listing Tracker - отслеживание новых листингов
-    include partials/styles
-  body
-    include partials/header
-    main.main
-      section.news-section
-        h2 Новости рынка
+extends layout
+
+block headMeta
+  meta(name="description" content="Listing Tracker - актуальная информация о новых листингах криптовалют на Binance, Bybit, OKX и других биржах")
+  meta(name="keywords" content="листинг, криптовалюта, биржа, трекер, новые монеты, Binance, Bybit, OKX")
+
+block headExtra
+  link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.css")
+
+block content
+  main.main
+    section.news-section
+      h2 Новости рынка
+      if newsCards.length === 0
+        p Новостей пока нет — добавьте записи в справочнике (MarketNews) через БД или админку.
+      else
         .news-row
           each item in newsCards
             include partials/news-card
-      section#exchanges.exchanges
-        h2 Выбор биржи
+    section#exchanges.exchanges
+      h2 Выбор биржи
+      if exchangesList.length === 0
+        p Биржи не заведены. Добавьте их на странице&nbsp;
+          a(href="/exchanges") управления биржами
+          | .
+      else
         form.exchanges__form.form
           fieldset.form__fieldset
             legend.form__legend Выберите биржи для отображения:
             .form__checkboxes
-              label.form__label
-                input.form__checkbox(type="checkbox" name="exchange" value="binance" checked)
-                | Binance
-              label.form__label
-                input.form__checkbox(type="checkbox" name="exchange" value="bybit" checked)
-                | Bybit
-              label.form__label
-                input.form__checkbox(type="checkbox" name="exchange" value="okx" checked)
-                | OKX
-              label.form__label
-                input.form__checkbox(type="checkbox" name="exchange" value="kucoin")
-                | KuCoin
-              label.form__label
-                input.form__checkbox(type="checkbox" name="exchange" value="gateio")
-                | Gate.io
-              label.form__label
-                input.form__checkbox(type="checkbox" name="exchange" value="mexc")
-                | MEXC
-      .listings-grid
-        section#upcoming.listing-section
-          h2 Предстоящие листинги
+              each ex in exchangesList
+                label.form__label
+                  input.form__checkbox(type="checkbox" name="exchange" value=ex.id checked=true)
+                  | #{ex.name}
+    .listings-grid
+      section#upcoming.listing-section
+        h2 Предстоящие листинги
+        if upcomingListings.length === 0
+          p Пока нет предстоящих листингов в базе.
+        else
           .listing-cards
             each item in upcomingListings
               include partials/listing-card
-        section#recent.listing-section
-          h2 Недавние листинги
+      section#recent.listing-section
+        h2 Недавние листинги
+        if recentListings.length === 0
+          p Нет недавних листингов в базе.
+        else
           .listing-cards
             each item in recentListings
               include partials/listing-card
-      section#stats.stats-section
-        h2 Статистика листингов
+    section#stats.stats-section
+      h2 Статистика листингов
+      if statsRows.length === 0
+        p Нет данных для статистики (добавьте листинги).
+      else
         table.stats-table
           thead
             tr
@@ -68,38 +70,58 @@ html(lang="ru")
                 td(data-label="Средний рост")= row.avg
                 td(data-label="Лучший")= row.best
                 td.hide-mobile(data-label="Худший")= row.worst
-      section#about.about
-        h2 О проекте
-        article
-          p
-            strong Listing Tracker
-            |  - это агрегатор информации о листингах криптовалют на различных биржах.
-          blockquote.about__quote
-            | "В крипте 
-            em время решает всё
-            | . Получение информации о листингах на несколько секунд раньше может существенно повлиять на вашу торговую стратегию."
-            cite.about__cite — Основатель проекта
-          p Мы используем 
-            strong автоматический мониторинг
-            |  официальных каналов бирж и 
-            ins ручную проверку
-            |  всей информации.
-          h3 Наши преимущества:
-          ul.about__list
-            li.about__list-item Мгновенные уведомления о новых листингах
-            li.about__list-item Покрытие всех основных бирж
-            li.about__list-item Точные даты и время
-            li.about__list-item Информация о торговых парах
-        .supported-exchanges
-          h3 Поддерживаемые биржи
+    section#about.about
+      h2 О проекте
+      article
+        p
+          strong Listing Tracker
+          |  - это агрегатор информации о листингах криптовалют на различных биржах.
+        blockquote.about__quote
+          | "В крипте 
+          em время решает всё
+          | . Получение информации о листингах на несколько секунд раньше может существенно повлиять на вашу торговую стратегию."
+          cite.about__cite — Основатель проекта
+        p Мы используем 
+          strong автоматический мониторинг
+          |  официальных каналов бирж и 
+          ins ручную проверку
+          |  всей информации.
+        h3 Наши преимущества:
+        ul.about__list
+          li.about__list-item Мгновенные уведомления о новых листингах
+          li.about__list-item Покрытие всех основных бирж
+          li.about__list-item Точные даты и время
+          li.about__list-item Информация о торговых парах
+      .supported-exchanges
+        h3 Поддерживаемые биржи
+        if exchangeLogos.length === 0
+          p Список бирж появится после добавления записей.
+        else
           .supported-exchanges__logos
             each logo in exchangeLogos
               img(src=logo.src alt=logo.alt width="56" height="56")
-      section#faq.faq
-        h2 Часто задаваемые вопросы (FAQ)
-        each faqItem in faq
-          article.faq__item
-            h3= faqItem.question
-            p= faqItem.answer
-    include partials/footer
-    include partials/scripts
+    section#faq.faq
+      h2 Часто задаваемые вопросы (FAQ)
+      each faqItem in faq
+        article.faq__item
+          h3= faqItem.question
+          p= faqItem.answer
+
+block pageScripts
+  script(src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js")
+  script(src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.js")
+  script.
+    (function () {
+      if (typeof EventSource === 'undefined') return;
+      toastr.options = { positionClass: 'toast-top-right', timeOut: 8000, closeButton: true };
+      var es = new EventSource('/market-news/stream');
+      es.onmessage = function (ev) {
+        try {
+          var p = JSON.parse(ev.data);
+          if (p.type === 'created') {
+            var sub = p.exchangeName ? (' · ' + p.exchangeName) : '';
+            toastr.success(p.title + sub, 'Новая новость рынка');
+          }
+        } catch (e) {}
+      };
+    })();

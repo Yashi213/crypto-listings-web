@@ -1,0 +1,31 @@
+extends ../layout
+
+block content
+  main.main.crud-form
+    h2 #{exchange.name}
+    - var logoLocal = exchange.logoUrl && exchange.logoUrl.indexOf('/uploads/logos/') === 0
+    - var logoUrlValue = logoLocal ? '' : (exchange.logoUrl || '')
+    form.form(method="post" action=`/exchanges/${exchange.id}/update` enctype="multipart/form-data")
+      fieldset.form__fieldset
+        legend.form__legend Биржа
+        label.form__label
+          | Название
+          input.form__input(type="text" name="name" required maxlength="120" value=exchange.name)
+        label.form__label
+          | Сайт
+          input.form__input(type="url" name="website" placeholder="https://…" value=exchange.website || '')
+        if logoLocal
+          img.form__logo-preview(src=exchange.logoUrl alt="" loading="lazy")
+          label.form__inline-check
+            input(type="checkbox" name="removeLogo" value="1")
+            | Убрать логотип
+        label.form__label
+          | Логотип
+          input.form__input(type="file" name="logoFile" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml")
+        label.form__label
+          | URL логотипа
+          input.form__input(type="url" name="logoUrl" placeholder="Необязательно" value=logoUrlValue)
+      p(style="margin:1.5rem 0 0;display:flex;flex-wrap:wrap;gap:0.75rem 1rem;align-items:center")
+        button.btn(type="submit") Сохранить
+        a.nav__link(href=`/exchanges/${exchange.id}`) Просмотр
+        a.nav__link(href="/exchanges") К списку

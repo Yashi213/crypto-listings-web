@@ -1,0 +1,37 @@
+extends ../layout
+
+block content
+  main.main.crud-form
+    h2 #{asset.symbol}
+    - var logoLocal = asset.logoUrl && asset.logoUrl.indexOf('/uploads/logos/') === 0
+    - var logoUrlValue = logoLocal ? '' : (asset.logoUrl || '')
+    form.form(method="post" action=`/assets/${asset.id}/update` enctype="multipart/form-data")
+      fieldset.form__fieldset
+        legend.form__legend Актив
+        label.form__label
+          | Тикер
+          input.form__input(type="text" name="symbol" required maxlength="32" value=asset.symbol)
+        label.form__label
+          | Название
+          input.form__input(type="text" name="name" required maxlength="200" value=asset.name)
+        label.form__label
+          | Описание
+          textarea.form__textarea(name="description" rows="2")= asset.description || ''
+        label.form__label
+          | Сайт
+          input.form__input(type="url" name="website" value=asset.website || '')
+        if logoLocal
+          img.form__logo-preview(src=asset.logoUrl alt="" loading="lazy")
+          label.form__inline-check
+            input(type="checkbox" name="removeLogo" value="1")
+            | Убрать логотип
+        label.form__label
+          | Логотип
+          input.form__input(type="file" name="logoFile" accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml")
+        label.form__label
+          | URL логотипа
+          input.form__input(type="url" name="logoUrl" placeholder="Необязательно" value=logoUrlValue)
+      p(style="margin:1.5rem 0 0;display:flex;flex-wrap:wrap;gap:0.75rem 1rem;align-items:center")
+        button.btn(type="submit") Сохранить
+        a.nav__link(href=`/assets/${asset.id}`) Просмотр
+        a.nav__link(href="/assets") К списку

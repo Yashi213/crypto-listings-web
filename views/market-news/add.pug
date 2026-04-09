@@ -1,0 +1,43 @@
+extends ../layout
+
+block content
+  main.main
+    h2 Новая новость
+    if exchanges.length === 0
+      p Сначала добавьте биржу в&nbsp;
+        a(href="/exchanges/add") справочнике
+        | .
+    else
+      form.form(method="post" action="/market-news")
+        fieldset.form__fieldset
+          legend.form__legend Поля
+          label.form__label
+            | Заголовок
+            input.form__input(type="text" name="title" required maxlength="240")
+          label.form__label
+            | Биржа
+            select.form__input(name="exchangeId" required)
+              each ex in exchanges
+                option(value=ex.id)= ex.name
+          label.form__label
+            | Дата и время публикации
+            input.form__input(type="datetime-local" name="publishedAt" required)
+          label.form__label
+            | URL картинки
+            input.form__input(type="url" name="imageUrl" required placeholder="https://...")
+          label.form__label
+            | Подпись к картинке (alt)
+            input.form__input(type="text" name="imageAlt" required maxlength="200")
+          label.form__label
+            | Краткий текст (необязательно)
+            textarea.form__textarea(name="summary" rows="3")
+          label.form__label
+            | Ссылка на источник (необязательно)
+            input.form__input(type="url" name="sourceUrl" placeholder="https://...")
+          label.form__label
+            | Порядок сортировки (меньше — выше в списке)
+            input.form__input(type="number" name="sortOrder" value="0" step="1")
+        p
+          button.btn(type="submit") Сохранить
+          |  
+          a.nav__link(href="/market-news") Отмена

@@ -1,0 +1,39 @@
+extends ../layout
+
+block content
+  main.main
+    h2 Редактирование листинга
+    form.form(method="post" action=`/listings/${listing.id}/update`)
+      fieldset.form__fieldset
+        legend.form__legend Поля
+        label.form__label
+          | Название
+          input.form__input(type="text" name="title" required maxlength="240" value=listing.title)
+        label.form__label
+          | Биржа
+          select.form__input(name="exchangeId" required)
+            each ex in exchanges
+              option(value=ex.id selected=(ex.id === listing.exchangeId))= ex.name
+        label.form__label
+          | Статус
+          select.form__input(name="status" required)
+            option(value="UPCOMING" selected=(listing.status === 'UPCOMING')) Предстоящий
+            option(value="RECENT" selected=(listing.status === 'RECENT')) Недавний
+        label.form__label
+          | Дата и время
+          input.form__input(type="datetime-local" name="dateAt" required value=dateAtLocal)
+        label.form__label
+          | Описание
+          textarea.form__textarea(name="description" rows="3")= listing.description || ''
+        label.form__label
+          | Основной актив
+          select.form__input(name="assetId")
+            option(value="" selected=!listing.assetId) —
+            each a in assets
+              option(value=a.id selected=(listing.asset && listing.asset.id === a.id))= a.symbol + ' — ' + a.name
+      p
+        button.btn(type="submit") Сохранить
+        |  
+        a.nav__link(href=`/listings/${listing.id}`) К просмотру
+        |  
+        a.nav__link(href="/listings") К списку

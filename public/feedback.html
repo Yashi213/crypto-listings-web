@@ -33,8 +33,10 @@
 </header>
 
 <main class="main">
-    <div id="feedback-root"></div>
-    
+    <p style="max-width:36rem;margin:0 auto 1.5rem;padding:1rem;background:var(--bg-white);border-radius:0.5rem;box-shadow:var(--shadow)">
+      Эта копия страницы из папки <code>public</code> устарела. Откройте приложение:
+      <a href="/feedback">/feedback</a> — отзывы только в базе данных, без localStorage.
+    </p>
     <div id="api-comments-root"></div>
 </main>
 
@@ -67,7 +69,6 @@
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-<script type="module" src="js/feedback-app.js"></script>
 <script type="module" src="js/api-app.js"></script>
 </body>
 </html>

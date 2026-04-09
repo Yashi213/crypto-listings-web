@@ -1,0 +1,40 @@
+extends ../layout
+
+block content
+  main.main
+    h2 Редактирование новости
+    form.form(method="post" action=`/market-news/${news.id}/update`)
+      fieldset.form__fieldset
+        legend.form__legend Поля
+        label.form__label
+          | Заголовок
+          input.form__input(type="text" name="title" required maxlength="240" value=news.title)
+        label.form__label
+          | Биржа
+          select.form__input(name="exchangeId" required)
+            each ex in exchanges
+              option(value=ex.id selected=(ex.id === news.exchangeId))= ex.name
+        label.form__label
+          | Дата и время публикации
+          input.form__input(type="datetime-local" name="publishedAt" required value=publishedLocal)
+        label.form__label
+          | URL картинки
+          input.form__input(type="url" name="imageUrl" required value=news.imageUrl)
+        label.form__label
+          | Подпись к картинке
+          input.form__input(type="text" name="imageAlt" required maxlength="200" value=news.imageAlt)
+        label.form__label
+          | Краткий текст
+          textarea.form__textarea(name="summary" rows="3")= news.summary || ''
+        label.form__label
+          | Ссылка на источник
+          input.form__input(type="url" name="sourceUrl" value=news.sourceUrl || '')
+        label.form__label
+          | Порядок сортировки
+          input.form__input(type="number" name="sortOrder" value=news.sortOrder step="1")
+      p
+        button.btn(type="submit") Сохранить
+        |  
+        a.nav__link(href=`/market-news/${news.id}`) К просмотру
+        |  
+        a.nav__link(href="/market-news") К списку
