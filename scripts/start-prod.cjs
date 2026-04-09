@@ -1,14 +1,20 @@
 /**
- * Запуск из каталога с package.json, не из process.cwd().
- * На Render иногда cwd = .../src, тогда node dist/main ищет src/dist — файл в корне dist/.
+ * Render: скрипт может резолвиться как .../src/scripts (cwd/src), а nest build кладёт dist в корень репо.
+ * Пробуем несколько путей к dist/main.js.
  */
 const fs = require('fs');
 const path = require('path');
 
-const mainJs = path.join(__dirname, '..', 'dist', 'main.js');
+const candidates = [
+  path.join(__dirname, '..', 'dist', 'main.js'),
+  path.join(__dirname, '..', '..', 'dist', 'main.js'),
+];
 
-if (!fs.existsSync(mainJs)) {
-  console.error('[start-prod] Нет файла:', mainJs);
+const mainJs = candidates.find((p) => fs.existsSync(p));
+
+if (!mainJs) {
+  console.error('[start-prod] Не найден dist/main.js. Проверьте:');
+  candidates.forEach((p) => console.error('  -', p));
   process.exit(1);
 }
 
