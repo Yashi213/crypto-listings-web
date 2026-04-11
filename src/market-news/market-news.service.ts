@@ -19,11 +19,11 @@ export class MarketNewsService {
     return d;
   }
 
-  private parseSortOrder(value: string | undefined): number {
+  private parseSortOrder(value: string | number | undefined): number {
     if (value === undefined || value === '') {
       return 0;
     }
-    const n = parseInt(value, 10);
+    const n = typeof value === 'number' ? value : parseInt(String(value), 10);
     if (Number.isNaN(n)) {
       throw new BadRequestException('Некорректный порядок сортировки');
     }
@@ -61,6 +61,20 @@ export class MarketNewsService {
       orderBy: [{ sortOrder: 'asc' }, { publishedAt: 'desc' }],
       include: { exchange: true },
     });
+  }
+
+  async findAllPaginated(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prisma.marketNews.findMany({
+        skip,
+        take: limit,
+        orderBy: [{ sortOrder: 'asc' }, { publishedAt: 'desc' }],
+        include: { exchange: true },
+      }),
+      this.prisma.marketNews.count(),
+    ]);
+    return { items, total };
   }
 
   async findOne(id: string) {

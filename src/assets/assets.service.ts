@@ -49,6 +49,19 @@ export class AssetsService {
     return this.prisma.asset.findMany({ orderBy: { symbol: 'asc' } });
   }
 
+  async findAllPaginated(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prisma.asset.findMany({
+        skip,
+        take: limit,
+        orderBy: { symbol: 'asc' },
+      }),
+      this.prisma.asset.count(),
+    ]);
+    return { items, total };
+  }
+
   async findOne(id: string) {
     const row = await this.prisma.asset.findUnique({ where: { id } });
     if (!row) {

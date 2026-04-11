@@ -11,6 +11,7 @@ import {
   Render,
   Res,
 } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { viewAuth } from '../common/view-session';
 import { ListingsService } from './listings.service';
@@ -18,6 +19,7 @@ import { AddTradingPairDto } from './dto/add-trading-pair.dto';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 
+@ApiExcludeController()
 @Controller('listings')
 export class ListingsController {
   constructor(private readonly listingsService: ListingsService) {}

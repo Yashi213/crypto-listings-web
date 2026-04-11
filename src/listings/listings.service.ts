@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ListingStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { listingWithRelationsInclude } from '../common/prisma-includes';
 import { AddTradingPairDto } from './dto/add-trading-pair.dto';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
@@ -27,12 +28,6 @@ const FAQ_ITEMS = [
   },
 ];
 
-const listingInclude = {
-  exchange: true,
-  asset: true,
-  pairs: { include: { baseAsset: true, quoteAsset: true } },
-} as const;
-
 @Injectable()
 export class ListingsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -45,8 +40,10 @@ export class ListingsService {
     });
   }
 
-  private parseStatus(value: string): ListingStatus {
-    const v = value?.trim().toUpperCase();
+  private parseStatus(value: string | ListingStatus): ListingStatus {
+    const v = String(value ?? '')
+      .trim()
+      .toUpperCase();
     if (v === ListingStatus.UPCOMING || v === ListingStatus.RECENT) {
       return v;
     }
@@ -203,21 +200,35 @@ export class ListingsService {
         exchangeId: dto.exchangeId,
         assetId,
       },
-      include: listingInclude,
+      include: listingWithRelationsInclude,
     });
   }
 
   findAllForAdmin() {
     return this.prisma.listing.findMany({
       orderBy: [{ dateAt: 'desc' }],
-      include: listingInclude,
+      include: listingWithRelationsInclude,
     });
+  }
+
+  async findAllPaginated(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prisma.listing.findMany({
+        skip,
+        take: limit,
+        orderBy: [{ dateAt: 'desc' }],
+        include: listingWithRelationsInclude,
+      }),
+      this.prisma.listing.count(),
+    ]);
+    return { items, total };
   }
 
   async findOne(id: string) {
     const row = await this.prisma.listing.findUnique({
       where: { id },
-      include: listingInclude,
+      include: listingWithRelationsInclude,
     });
     if (!row) {
       throw new NotFoundException(`Листинг ${id} не найден`);
@@ -268,7 +279,7 @@ export class ListingsService {
     return this.prisma.listing.update({
       where: { id },
       data,
-      include: listingInclude,
+      include: listingWithRelationsInclude,
     });
   }
 
@@ -295,12 +306,13 @@ export class ListingsService {
       throw new NotFoundException('Один из активов не найден');
     }
     try {
-      await this.prisma.tradingPair.create({
+      return await this.prisma.tradingPair.create({
         data: {
           listingId,
           baseAssetId: baseId,
           quoteAssetId: quoteId,
         },
+        include: { baseAsset: true, quoteAsset: true },
       });
     } catch (e: unknown) {
       if (
@@ -324,5 +336,35 @@ export class ListingsService {
       throw new NotFoundException('Пара не найдена у этого листинга');
     }
     await this.prisma.tradingPair.delete({ where: { id: pairId } });
+  }
+
+  async findPairsPaginated(listingId: string, page: number, limit: number) {
+    await this.findOne(listingId);
+    const skip = (page - 1) * limit;
+    const where = { listingId };
+    const pairInclude = { baseAsset: true, quoteAsset: true } as const;
+    const [items, total] = await Promise.all([
+      this.prisma.tradingPair.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: pairInclude,
+      }),
+      this.prisma.tradingPair.count({ where }),
+    ]);
+    return { items, total };
+  }
+
+  async findPairForListing(listingId: string, pairId: string) {
+    await this.findOne(listingId);
+    const row = await this.prisma.tradingPair.findFirst({
+      where: { id: pairId, listingId },
+      include: { baseAsset: true, quoteAsset: true },
+    });
+    if (!row) {
+      throw new NotFoundException('Пара не найдена у этого листинга');
+    }
+    return row;
   }
 }

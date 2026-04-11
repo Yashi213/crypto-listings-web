@@ -1,8 +1,10 @@
 import { Controller, Get, Query, Redirect, Render } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 import { viewAuth } from './common/view-session';
 import { FeedbackService } from './feedback/feedback.service';
 import { ListingsService } from './listings/listings.service';
 
+@ApiExcludeController()
 @Controller()
 export class AppController {
   constructor(

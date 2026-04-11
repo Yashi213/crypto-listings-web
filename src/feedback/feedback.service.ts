@@ -24,11 +24,12 @@ export class FeedbackService {
     return u;
   }
 
-  private parseRating(value: string | undefined): number | null {
+  private parseRating(value: string | number | undefined): number | null {
     if (value === undefined || value === '') {
       return null;
     }
-    const r = parseInt(String(value), 10);
+    const r =
+      typeof value === 'number' ? value : parseInt(String(value), 10);
     if (Number.isNaN(r) || r < 1 || r > 5) {
       throw new BadRequestException('Оценка должна быть от 1 до 5');
     }
@@ -87,5 +88,19 @@ export class FeedbackService {
       take,
       include: { user: true },
     });
+  }
+
+  async findAllPaginated(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prisma.feedback.findMany({
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: { user: true },
+      }),
+      this.prisma.feedback.count(),
+    ]);
+    return { items, total };
   }
 }

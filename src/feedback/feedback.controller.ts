@@ -1,9 +1,11 @@
 import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 
 /** POST /feedbacks — только приём отзывов с публичной страницы /feedback */
+@ApiExcludeController()
 @Controller('feedbacks')
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}

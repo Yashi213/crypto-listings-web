@@ -13,6 +13,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { viewAuth } from '../common/view-session';
@@ -25,6 +26,7 @@ import { ExchangesService } from './exchanges.service';
 import { CreateExchangeDto } from './dto/create-exchange.dto';
 import { UpdateExchangeDto } from './dto/update-exchange.dto';
 
+@ApiExcludeController()
 @Controller('exchanges')
 export class ExchangesController {
   constructor(private readonly exchangesService: ExchangesService) {}

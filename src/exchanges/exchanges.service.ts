@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { listingWithRelationsInclude } from '../common/prisma-includes';
 import { PrismaService } from '../prisma/prisma.service';
 import { unlinkLocalLogo } from '../uploads/logo-upload.util';
 import { CreateExchangeDto } from './dto/create-exchange.dto';
@@ -44,6 +45,89 @@ export class ExchangesService {
 
   findAll() {
     return this.prisma.exchange.findMany({ orderBy: { name: 'asc' } });
+  }
+
+  async findAllPaginated(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      this.prisma.exchange.findMany({
+        skip,
+        take: limit,
+        orderBy: { name: 'asc' },
+      }),
+      this.prisma.exchange.count(),
+    ]);
+    return { items, total };
+  }
+
+  async findListingsByExchangePaginated(
+    exchangeId: string,
+    page: number,
+    limit: number,
+  ) {
+    await this.findOne(exchangeId);
+    const skip = (page - 1) * limit;
+    const where = { exchangeId };
+    const [items, total] = await Promise.all([
+      this.prisma.listing.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { dateAt: 'desc' },
+        include: listingWithRelationsInclude,
+      }),
+      this.prisma.listing.count({ where }),
+    ]);
+    return { items, total };
+  }
+
+  async findListingInExchange(exchangeId: string, listingId: string) {
+    await this.findOne(exchangeId);
+    const row = await this.prisma.listing.findFirst({
+      where: { id: listingId, exchangeId },
+      include: listingWithRelationsInclude,
+    });
+    if (!row) {
+      throw new NotFoundException(
+        `Листинг ${listingId} не найден у биржи ${exchangeId}`,
+      );
+    }
+    return row;
+  }
+
+  async findMarketNewsByExchangePaginated(
+    exchangeId: string,
+    page: number,
+    limit: number,
+  ) {
+    await this.findOne(exchangeId);
+    const skip = (page - 1) * limit;
+    const where = { exchangeId };
+    const [items, total] = await Promise.all([
+      this.prisma.marketNews.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: [{ sortOrder: 'asc' }, { publishedAt: 'desc' }],
+        include: { exchange: true },
+      }),
+      this.prisma.marketNews.count({ where }),
+    ]);
+    return { items, total };
+  }
+
+  async findMarketNewsInExchange(exchangeId: string, newsId: string) {
+    await this.findOne(exchangeId);
+    const row = await this.prisma.marketNews.findFirst({
+      where: { id: newsId, exchangeId },
+      include: { exchange: true },
+    });
+    if (!row) {
+      throw new NotFoundException(
+        `Новость ${newsId} не найдена у биржи ${exchangeId}`,
+      );
+    }
+    return row;
   }
 
   async findOne(id: string) {

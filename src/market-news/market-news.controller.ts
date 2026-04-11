@@ -13,6 +13,7 @@ import {
   Res,
   Sse,
 } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { Observable } from 'rxjs';
 import { viewAuth } from '../common/view-session';
@@ -22,6 +23,7 @@ import { MarketNewsSseService } from './market-news-sse.service';
 import { CreateMarketNewDto } from './dto/create-market-new.dto';
 import { UpdateMarketNewDto } from './dto/update-market-new.dto';
 
+@ApiExcludeController()
 @Controller('market-news')
 export class MarketNewsController {
   constructor(
