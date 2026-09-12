@@ -225,6 +225,22 @@ export class ListingsService {
     return { items, total };
   }
 
+  async findAllByAssetPaginated(assetId: string, page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const where = { assetId };
+    const [items, total] = await Promise.all([
+      this.prisma.listing.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { dateAt: 'desc' },
+        include: listingWithRelationsInclude,
+      }),
+      this.prisma.listing.count({ where }),
+    ]);
+    return { items, total };
+  }
+
   async findOne(id: string) {
     const row = await this.prisma.listing.findUnique({
       where: { id },

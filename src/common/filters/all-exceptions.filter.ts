@@ -14,7 +14,11 @@ import { viewAuth } from '../view-session';
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
 
-  catch(exception: unknown, host: ArgumentsHost): void {
+  catch(exception: unknown, host: ArgumentsHost): unknown {
+    if (host.getType<string>() === 'graphql') {
+      return exception;
+    }
+
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
     const req = ctx.getRequest<Request>();
@@ -58,6 +62,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
   private wantsJson(req: Request): boolean {
     const path = req.path || req.url.split('?')[0];
     if (path.startsWith('/api/')) return true;
+    if (path.startsWith('/graphql')) return true;
     if (path.endsWith('/stream')) return true;
     const accept = req.get('accept') || '';
     if (accept.includes('text/event-stream')) return true;

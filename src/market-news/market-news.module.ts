@@ -3,11 +3,12 @@ import { ExchangesModule } from '../exchanges/exchanges.module';
 import { MarketNewsApiController } from './market-news-api.controller';
 import { MarketNewsService } from './market-news.service';
 import { MarketNewsController } from './market-news.controller';
+import { MarketNewsResolver } from './market-news.resolver';
 import { MarketNewsSseService } from './market-news-sse.service';
 
 @Module({
   imports: [ExchangesModule],
   controllers: [MarketNewsController, MarketNewsApiController],
-  providers: [MarketNewsService, MarketNewsSseService],
+  providers: [MarketNewsService, MarketNewsSseService, MarketNewsResolver],
 })
 export class MarketNewsModule {}

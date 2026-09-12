@@ -1,0 +1,718 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""Активы для новой торговой пары"""
+input AddTradingPairInput {
+  """ID базового актива"""
+  baseAssetId: ID!
+
+  """ID котируемого актива"""
+  quoteAssetId: ID!
+}
+
+"""Криптоактив (монета или токен)"""
+type Asset {
+  """Дата создания записи"""
+  createdAt: DateTime!
+
+  """Описание актива"""
+  description: String
+
+  """Идентификатор актива"""
+  id: ID!
+
+  """Листинги, где этот актив основной"""
+  listings(
+    """Размер страницы (максимум 100)"""
+    limit: Int! = 20
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): ListingPage!
+
+  """URL логотипа"""
+  logoUrl: String
+
+  """Полное название актива"""
+  name: String!
+
+  """Тикер, например BTC"""
+  symbol: String!
+
+  """Дата последнего обновления"""
+  updatedAt: DateTime!
+
+  """Сайт проекта"""
+  website: String
+}
+
+"""Страница списка активов"""
+type AssetPage {
+  """Элементы текущей страницы"""
+  items: [Asset!]!
+
+  """Размер страницы"""
+  limit: Int!
+
+  """Номер текущей страницы"""
+  page: Int!
+
+  """Всего записей"""
+  total: Int!
+}
+
+"""Данные для создания актива"""
+input CreateAssetInput {
+  """Описание"""
+  description: String
+
+  """URL логотипа"""
+  logoUrl: String
+
+  """Название"""
+  name: String!
+
+  """Тикер"""
+  symbol: String!
+
+  """Сайт"""
+  website: String
+}
+
+"""Данные для создания биржи"""
+input CreateExchangeInput {
+  """URL логотипа"""
+  logoUrl: String
+
+  """Название"""
+  name: String!
+
+  """Сайт"""
+  website: String
+}
+
+"""Данные для создания отзыва"""
+input CreateFeedbackInput {
+  """ФИО (вместе с email)"""
+  displayName: String
+
+  """Email (вместе с ФИО)"""
+  email: String
+
+  """Текст (минимум 10 символов)"""
+  message: String!
+
+  """Оценка 1–5"""
+  rating: Int
+}
+
+"""Данные для создания листинга"""
+input CreateListingInput {
+  """ID основного актива"""
+  assetId: ID
+
+  """Дата листинга (ISO-8601)"""
+  dateAt: String!
+
+  """Описание"""
+  description: String
+
+  """ID биржи"""
+  exchangeId: ID!
+
+  """Статус листинга"""
+  status: ListingStatus!
+
+  """Название"""
+  title: String!
+}
+
+"""Данные для создания новости"""
+input CreateMarketNewsInput {
+  """ID биржи"""
+  exchangeId: ID!
+
+  """Альтернативный текст изображения"""
+  imageAlt: String!
+
+  """URL изображения"""
+  imageUrl: String!
+
+  """Дата публикации (ISO-8601)"""
+  publishedAt: String!
+
+  """Порядок сортировки"""
+  sortOrder: Int
+
+  """Ссылка на источник"""
+  sourceUrl: String
+
+  """Краткое содержание"""
+  summary: String
+
+  """Заголовок"""
+  title: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+"""Криптобиржа"""
+type Exchange {
+  """Дата создания записи"""
+  createdAt: DateTime!
+
+  """Идентификатор биржи"""
+  id: ID!
+
+  """Листинги этой биржи"""
+  listings(
+    """Размер страницы (максимум 100)"""
+    limit: Int! = 20
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): ListingPage!
+
+  """URL логотипа"""
+  logoUrl: String
+
+  """Новости этой биржи"""
+  marketNews(
+    """Размер страницы (максимум 100)"""
+    limit: Int! = 20
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): MarketNewsPage!
+
+  """Название биржи"""
+  name: String!
+
+  """Дата последнего обновления"""
+  updatedAt: DateTime!
+
+  """Сайт биржи"""
+  website: String
+}
+
+"""Страница списка бирж"""
+type ExchangePage {
+  """Элементы текущей страницы"""
+  items: [Exchange!]!
+
+  """Размер страницы"""
+  limit: Int!
+
+  """Номер текущей страницы"""
+  page: Int!
+
+  """Всего записей"""
+  total: Int!
+}
+
+"""Отзыв пользователя"""
+type Feedback {
+  """Дата создания"""
+  createdAt: DateTime!
+
+  """Идентификатор отзыва"""
+  id: ID!
+
+  """Текст отзыва"""
+  message: String!
+
+  """Оценка от 1 до 5"""
+  rating: Int
+
+  """Автор отзыва"""
+  user: FeedbackUser!
+
+  """ID автора"""
+  userId: ID!
+}
+
+"""Страница списка отзывов"""
+type FeedbackPage {
+  """Элементы текущей страницы"""
+  items: [Feedback!]!
+
+  """Размер страницы"""
+  limit: Int!
+
+  """Номер текущей страницы"""
+  page: Int!
+
+  """Всего записей"""
+  total: Int!
+}
+
+"""Автор отзыва"""
+type FeedbackUser {
+  """Отображаемое имя"""
+  displayName: String!
+
+  """Email"""
+  email: String!
+
+  """Идентификатор пользователя"""
+  id: ID!
+
+  """Роль"""
+  role: UserRole!
+}
+
+"""Листинг актива на бирже"""
+type Listing {
+  """Основной актив листинга"""
+  asset: Asset
+
+  """ID основного актива"""
+  assetId: ID
+
+  """Дата создания записи"""
+  createdAt: DateTime!
+
+  """Дата листинга"""
+  dateAt: DateTime!
+
+  """Описание или особенности"""
+  description: String
+
+  """Биржа листинга"""
+  exchange: Exchange!
+
+  """ID биржи"""
+  exchangeId: ID!
+
+  """Идентификатор листинга"""
+  id: ID!
+
+  """Торговые пары листинга"""
+  pairs(
+    """Размер страницы (максимум 100)"""
+    limit: Int! = 20
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): TradingPairPage!
+
+  """Предстоящий или недавний"""
+  status: ListingStatus!
+
+  """Название листинга"""
+  title: String!
+
+  """Дата последнего обновления"""
+  updatedAt: DateTime!
+}
+
+"""Страница списка листингов"""
+type ListingPage {
+  """Элементы текущей страницы"""
+  items: [Listing!]!
+
+  """Размер страницы"""
+  limit: Int!
+
+  """Номер текущей страницы"""
+  page: Int!
+
+  """Всего записей"""
+  total: Int!
+}
+
+"""Статус листинга"""
+enum ListingStatus {
+  """Недавний (уже состоявшийся) листинг"""
+  RECENT
+
+  """Предстоящий листинг"""
+  UPCOMING
+}
+
+"""Новость рынка"""
+type MarketNews {
+  """Дата создания записи"""
+  createdAt: DateTime!
+
+  """Биржа-источник новости"""
+  exchange: Exchange!
+
+  """ID биржи-источника"""
+  exchangeId: ID!
+
+  """Идентификатор новости"""
+  id: ID!
+
+  """Альтернативный текст изображения"""
+  imageAlt: String!
+
+  """URL изображения"""
+  imageUrl: String!
+
+  """Дата публикации"""
+  publishedAt: DateTime!
+
+  """Порядок сортировки на главной"""
+  sortOrder: Int!
+
+  """Ссылка на источник"""
+  sourceUrl: String
+
+  """Краткое содержание"""
+  summary: String
+
+  """Заголовок"""
+  title: String!
+
+  """Дата последнего обновления"""
+  updatedAt: DateTime!
+}
+
+"""Страница списка новостей"""
+type MarketNewsPage {
+  """Элементы текущей страницы"""
+  items: [MarketNews!]!
+
+  """Размер страницы"""
+  limit: Int!
+
+  """Номер текущей страницы"""
+  page: Int!
+
+  """Всего записей"""
+  total: Int!
+}
+
+type Mutation {
+  """Добавить торговую пару к листингу"""
+  addListingPair(
+    input: AddTradingPairInput!
+
+    """ID листинга"""
+    listingId: ID!
+  ): TradingPair!
+
+  """Создать актив"""
+  createAsset(input: CreateAssetInput!): Asset!
+
+  """Создать биржу"""
+  createExchange(input: CreateExchangeInput!): Exchange!
+
+  """Создать отзыв"""
+  createFeedback(input: CreateFeedbackInput!): Feedback!
+
+  """Создать листинг"""
+  createListing(input: CreateListingInput!): Listing!
+
+  """Создать новость"""
+  createMarketNews(input: CreateMarketNewsInput!): MarketNews!
+
+  """Пометить листинг как недавний (состоявшийся)"""
+  markListingRecent(
+    """ID листинга"""
+    id: ID!
+  ): Listing!
+
+  """Пометить листинг как предстоящий"""
+  markListingUpcoming(
+    """ID листинга"""
+    id: ID!
+  ): Listing!
+
+  """Удалить актив"""
+  removeAsset(
+    """ID актива"""
+    id: ID!
+  ): Boolean!
+
+  """Удалить биржу"""
+  removeExchange(
+    """ID биржи"""
+    id: ID!
+  ): Boolean!
+
+  """Удалить отзыв"""
+  removeFeedback(
+    """ID отзыва"""
+    id: ID!
+  ): Boolean!
+
+  """Удалить листинг"""
+  removeListing(
+    """ID листинга"""
+    id: ID!
+  ): Boolean!
+
+  """Удалить торговую пару у листинга"""
+  removeListingPair(
+    """ID листинга"""
+    listingId: ID!
+
+    """ID пары"""
+    pairId: ID!
+  ): Boolean!
+
+  """Удалить новость"""
+  removeMarketNews(
+    """ID новости"""
+    id: ID!
+  ): Boolean!
+
+  """Частично обновить актив"""
+  updateAsset(
+    """ID актива"""
+    id: ID!
+    input: UpdateAssetInput!
+  ): Asset!
+
+  """Частично обновить биржу"""
+  updateExchange(
+    """ID биржи"""
+    id: ID!
+    input: UpdateExchangeInput!
+  ): Exchange!
+
+  """Частично обновить отзыв"""
+  updateFeedback(
+    """ID отзыва"""
+    id: ID!
+    input: UpdateFeedbackInput!
+  ): Feedback!
+
+  """Частично обновить листинг"""
+  updateListing(
+    """ID листинга"""
+    id: ID!
+    input: UpdateListingInput!
+  ): Listing!
+
+  """Частично обновить новость"""
+  updateMarketNews(
+    """ID новости"""
+    id: ID!
+    input: UpdateMarketNewsInput!
+  ): MarketNews!
+}
+
+type Query {
+  """Один актив по id"""
+  asset(
+    """ID актива"""
+    id: ID!
+  ): Asset!
+
+  """Список активов с пагинацией"""
+  assets(
+    """Размер страницы (максимум 100)"""
+    limit: Int! = 20
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): AssetPage!
+
+  """Одна биржа по id"""
+  exchange(
+    """ID биржи"""
+    id: ID!
+  ): Exchange!
+
+  """Список бирж с пагинацией"""
+  exchanges(
+    """Размер страницы (максимум 100)"""
+    limit: Int! = 20
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): ExchangePage!
+
+  """Один отзыв по id"""
+  feedback(
+    """ID отзыва"""
+    id: ID!
+  ): Feedback!
+
+  """Список отзывов с пагинацией"""
+  feedbacks(
+    """Размер страницы (максимум 100)"""
+    limit: Int! = 20
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): FeedbackPage!
+
+  """Один листинг по id"""
+  listing(
+    """ID листинга"""
+    id: ID!
+  ): Listing!
+
+  """Список листингов с пагинацией"""
+  listings(
+    """Размер страницы (максимум 100)"""
+    limit: Int! = 20
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): ListingPage!
+
+  """Одна новость по id"""
+  marketNewsItem(
+    """ID новости"""
+    id: ID!
+  ): MarketNews!
+
+  """Список новостей с пагинацией"""
+  marketNewsList(
+    """Размер страницы (максимум 100)"""
+    limit: Int! = 20
+
+    """Номер страницы, начиная с 1"""
+    page: Int! = 1
+  ): MarketNewsPage!
+}
+
+"""Торговая пара листинга"""
+type TradingPair {
+  """Базовый актив пары"""
+  baseAsset: Asset!
+
+  """ID базового актива"""
+  baseAssetId: ID!
+
+  """Дата добавления пары"""
+  createdAt: DateTime!
+
+  """Идентификатор пары"""
+  id: ID!
+
+  """ID листинга"""
+  listingId: ID!
+
+  """Котируемый актив пары"""
+  quoteAsset: Asset!
+
+  """ID котируемого актива"""
+  quoteAssetId: ID!
+}
+
+"""Страница торговых пар"""
+type TradingPairPage {
+  """Элементы текущей страницы"""
+  items: [TradingPair!]!
+
+  """Размер страницы"""
+  limit: Int!
+
+  """Номер текущей страницы"""
+  page: Int!
+
+  """Всего записей"""
+  total: Int!
+}
+
+"""Данные для частичного обновления актива"""
+input UpdateAssetInput {
+  """Описание"""
+  description: String
+
+  """URL логотипа"""
+  logoUrl: String
+
+  """Название"""
+  name: String
+
+  """Удалить текущий логотип"""
+  removeLogo: Boolean
+
+  """Тикер"""
+  symbol: String
+
+  """Сайт"""
+  website: String
+}
+
+"""Данные для частичного обновления биржи"""
+input UpdateExchangeInput {
+  """URL логотипа"""
+  logoUrl: String
+
+  """Название"""
+  name: String
+
+  """Удалить текущий логотип"""
+  removeLogo: Boolean
+
+  """Сайт"""
+  website: String
+}
+
+"""Данные для частичного обновления отзыва"""
+input UpdateFeedbackInput {
+  """Текст (минимум 10 символов)"""
+  message: String
+
+  """Оценка 1–5; null — сбросить оценку"""
+  rating: Int
+}
+
+"""Данные для частичного обновления листинга"""
+input UpdateListingInput {
+  """ID основного актива"""
+  assetId: ID
+
+  """Дата листинга (ISO-8601)"""
+  dateAt: String
+
+  """Описание"""
+  description: String
+
+  """ID биржи"""
+  exchangeId: ID
+
+  """Статус"""
+  status: ListingStatus
+
+  """Название"""
+  title: String
+}
+
+"""Данные для частичного обновления новости"""
+input UpdateMarketNewsInput {
+  """ID биржи"""
+  exchangeId: ID
+
+  """Альтернативный текст"""
+  imageAlt: String
+
+  """URL изображения"""
+  imageUrl: String
+
+  """Дата публикации (ISO-8601)"""
+  publishedAt: String
+
+  """Порядок сортировки"""
+  sortOrder: Int
+
+  """Ссылка на источник"""
+  sourceUrl: String
+
+  """Краткое содержание"""
+  summary: String
+
+  """Заголовок"""
+  title: String
+}
+
+"""Роль пользователя"""
+enum UserRole {
+  """Администратор"""
+  ADMIN
+
+  """Обычный пользователь"""
+  USER
+}
