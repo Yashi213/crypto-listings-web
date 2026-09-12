@@ -28,7 +28,11 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { setPaginationLinkHeader } from '../common/pagination/set-pagination-link-header';
 import { PAGINATED_COLLECTION_RESPONSE_HEADERS } from '../common/swagger/pagination-api.decorator';
 import { DeleteOkResponseDto } from '../common/swagger/delete-ok-response.dto';
-import { ApiErrorResponseDto } from '../common/swagger/error-response.dto';
+import {
+  ApiConflictErrorDto,
+  ApiErrorResponseDto,
+  ApiNotFoundErrorDto,
+} from '../common/swagger/error-response.dto';
 import { ListingResponseDto } from '../listings/dto/listing-response.dto';
 import { MarketNewsResponseDto } from '../market-news/dto/market-news-response.dto';
 import { CreateExchangeDto } from './dto/create-exchange.dto';
@@ -38,7 +42,9 @@ import { ExchangesService } from './exchanges.service';
 
 @ApiTags('Биржи')
 @ApiExtraModels(
+  ApiConflictErrorDto,
   ApiErrorResponseDto,
+  ApiNotFoundErrorDto,
   DeleteOkResponseDto,
   ExchangeResponseDto,
   ListingResponseDto,
@@ -85,7 +91,7 @@ export class ExchangesApiController {
     description: 'Ошибка валидации тела запроса',
   })
   @ApiConflictResponse({
-    type: ApiErrorResponseDto,
+    type: ApiConflictErrorDto,
     description: 'Биржа с таким названием уже существует (P2002 / Conflict)',
   })
   create(@Body() dto: CreateExchangeDto) {
@@ -98,7 +104,7 @@ export class ExchangesApiController {
   @ApiParam({ name: 'listingId', description: 'ID листинга' })
   @ApiOkResponse({ type: ListingResponseDto })
   @ApiNotFoundResponse({
-    type: ApiErrorResponseDto,
+    type: ApiNotFoundErrorDto,
     description: 'Биржа или листинг не найдены / листинг не принадлежит бирже',
   })
   findListingInExchange(
@@ -118,7 +124,7 @@ export class ExchangesApiController {
   })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
   @ApiNotFoundResponse({
-    type: ApiErrorResponseDto,
+    type: ApiNotFoundErrorDto,
     description: 'Биржа не найдена',
   })
   async listingsByExchange(
@@ -143,7 +149,7 @@ export class ExchangesApiController {
   @ApiParam({ name: 'newsId', description: 'ID новости' })
   @ApiOkResponse({ type: MarketNewsResponseDto })
   @ApiNotFoundResponse({
-    type: ApiErrorResponseDto,
+    type: ApiNotFoundErrorDto,
     description: 'Биржа или новость не найдены / новость не принадлежит бирже',
   })
   findNewsInExchange(
@@ -163,7 +169,7 @@ export class ExchangesApiController {
   })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
   @ApiNotFoundResponse({
-    type: ApiErrorResponseDto,
+    type: ApiNotFoundErrorDto,
     description: 'Биржа не найдена',
   })
   async marketNewsByExchange(
@@ -187,7 +193,7 @@ export class ExchangesApiController {
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: ExchangeResponseDto })
   @ApiNotFoundResponse({
-    type: ApiErrorResponseDto,
+    type: ApiNotFoundErrorDto,
     description: 'Биржа не найдена',
   })
   findOne(@Param('id') id: string) {
@@ -199,9 +205,9 @@ export class ExchangesApiController {
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: ExchangeResponseDto })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   @ApiConflictResponse({
-    type: ApiErrorResponseDto,
+    type: ApiConflictErrorDto,
     description: 'Конфликт уникальности названия',
   })
   update(@Param('id') id: string, @Body() dto: UpdateExchangeDto) {
@@ -212,7 +218,7 @@ export class ExchangesApiController {
   @ApiOperation({ summary: 'Удалить биржу' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: DeleteOkResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   @ApiBadRequestResponse({
     type: ApiErrorResponseDto,
     description: 'Ошибка БД при удалении (например, ограничения FK)',

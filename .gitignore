@@ -56,3 +56,4 @@ generated/prisma/
 
 public/uploads/logos/*
 !public/uploads/logos/.gitkeep
+/dist

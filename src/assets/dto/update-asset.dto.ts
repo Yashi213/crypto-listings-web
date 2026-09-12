@@ -1,10 +1,28 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { Allow, IsOptional, IsString } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsOptional } from 'class-validator';
 import { CreateAssetDto } from './create-asset.dto';
 
 export class UpdateAssetDto extends PartialType(CreateAssetDto) {
-  @Allow()
+  @ApiPropertyOptional({
+    description:
+      'Удалить текущий логотип (в JSON: true/false; в форме: 1, on, true)',
+    type: Boolean,
+  })
   @IsOptional()
-  @IsString()
-  removeLogo?: string;
+  @Transform(({ value }) => {
+    if (value === undefined || value === null || value === '') {
+      return undefined;
+    }
+    if (value === true || value === 'true' || value === '1' || value === 'on') {
+      return true;
+    }
+    if (value === false || value === 'false') {
+      return false;
+    }
+    return value;
+  })
+  @IsBoolean()
+  removeLogo?: boolean;
 }

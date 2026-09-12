@@ -1,9 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -13,6 +16,8 @@ import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiExtraModels,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -21,13 +26,23 @@ import type { Request, Response } from 'express';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { setPaginationLinkHeader } from '../common/pagination/set-pagination-link-header';
 import { PAGINATED_COLLECTION_RESPONSE_HEADERS } from '../common/swagger/pagination-api.decorator';
-import { ApiErrorResponseDto } from '../common/swagger/error-response.dto';
+import {
+  ApiErrorResponseDto,
+  ApiNotFoundErrorDto,
+} from '../common/swagger/error-response.dto';
 import { CreateFeedbackApiDto } from './dto/create-feedback-api.dto';
 import { FeedbackResponseDto } from './dto/feedback-response.dto';
+import { UpdateFeedbackApiDto } from './dto/update-feedback-api.dto';
 import { FeedbackService } from './feedback.service';
 
 @ApiTags('Отзывы')
-@ApiExtraModels(ApiErrorResponseDto, FeedbackResponseDto, CreateFeedbackApiDto)
+@ApiExtraModels(
+  ApiErrorResponseDto,
+  ApiNotFoundErrorDto,
+  FeedbackResponseDto,
+  CreateFeedbackApiDto,
+  UpdateFeedbackApiDto,
+)
 @Controller('api/feedback')
 export class FeedbackApiController {
   constructor(private readonly feedbackService: FeedbackService) {}
@@ -53,6 +68,14 @@ export class FeedbackApiController {
     return items;
   }
 
+  @Get(':id')
+  @ApiOperation({ summary: 'Один отзыв по id' })
+  @ApiOkResponse({ type: FeedbackResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
+  findOne(@Param('id') id: string) {
+    return this.feedbackService.findOne(id);
+  }
+
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Создать отзыв (JSON API)' })
@@ -72,5 +95,26 @@ export class FeedbackApiController {
       displayName: dto.displayName,
       email: dto.email,
     });
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Частично обновить отзыв' })
+  @ApiOkResponse({ type: FeedbackResponseDto })
+  @ApiBadRequestResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
+  update(@Param('id') id: string, @Body() dto: UpdateFeedbackApiDto) {
+    return this.feedbackService.update(id, {
+      message: dto.message,
+      rating: dto.rating,
+    });
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Удалить отзыв' })
+  @ApiNoContentResponse()
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
+  async remove(@Param('id') id: string) {
+    await this.feedbackService.remove(id);
   }
 }

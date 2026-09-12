@@ -1,0 +1,35 @@
+extends ../layout
+
+block content
+  main.main
+    h2 Отзывы (управление)
+    p.crud-toolbar
+      a.btn(href="/feedback") + Новый отзыв (форма для пользователей)
+    if items.length === 0
+      p Записей нет.
+    else
+      table.stats-table
+        thead
+          tr
+            th Автор
+            th Дата
+            th Оценка
+            th Текст
+            th.stats-table__actions Действия
+        tbody
+          each row in items
+            tr
+              td(data-label="Автор")= row.user.displayName
+              td(data-label="Дата")= row.createdAt.toLocaleString('ru-RU')
+              td(data-label="Оценка")
+                if row.rating != null
+                  = '★'.repeat(row.rating)
+                else
+                  | —
+              td(data-label="Текст")
+                a(href=`/feedbacks/${row.id}`)= row.message.length > 80 ? row.message.slice(0, 80) + '…' : row.message
+              td.stats-table__actions(data-label="Действия")
+                a(href=`/feedbacks/${row.id}/edit`) Изменить
+                |  
+                form.inline-delete(method="post" action=`/feedbacks/${row.id}/delete` style="display:inline" onsubmit="return confirm('Удалить отзыв?');")
+                  button.link-button(type="submit") Удалить

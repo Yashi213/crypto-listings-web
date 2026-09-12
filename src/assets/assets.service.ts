@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { unlinkLocalLogo } from '../uploads/logo-upload.util';
+import { unlinkLocalLogo, wantsLogoRemoved } from '../uploads/logo-upload.util';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
 
@@ -71,7 +71,7 @@ export class AssetsService {
   }
 
   async update(id: string, dto: AssetUpdatePayload) {
-    await this.findOne(id);
+    const row = await this.findOne(id);
     const data: {
       symbol?: string;
       name?: string;
@@ -79,6 +79,11 @@ export class AssetsService {
       website?: string | null;
       logoUrl?: string | null;
     } = {};
+    const removeLogo = wantsLogoRemoved(dto.removeLogo);
+    if (removeLogo) {
+      await unlinkLocalLogo(row.logoUrl);
+      data.logoUrl = null;
+    }
     if (dto.symbol !== undefined) {
       const s = dto.symbol.trim().toUpperCase();
       if (!s) {
@@ -99,9 +104,12 @@ export class AssetsService {
     if (dto.website !== undefined) {
       data.website = dto.website.trim() || null;
     }
-    if (dto.logoUrl !== undefined) {
+    if (dto.logoUrl !== undefined && !removeLogo) {
       data.logoUrl =
         dto.logoUrl === null ? null : dto.logoUrl.trim() || null;
+    }
+    if (Object.keys(data).length === 0) {
+      return row;
     }
     try {
       return await this.prisma.asset.update({

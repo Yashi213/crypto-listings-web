@@ -28,14 +28,24 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { setPaginationLinkHeader } from '../common/pagination/set-pagination-link-header';
 import { PAGINATED_COLLECTION_RESPONSE_HEADERS } from '../common/swagger/pagination-api.decorator';
 import { DeleteOkResponseDto } from '../common/swagger/delete-ok-response.dto';
-import { ApiErrorResponseDto } from '../common/swagger/error-response.dto';
+import {
+  ApiConflictErrorDto,
+  ApiErrorResponseDto,
+  ApiNotFoundErrorDto,
+} from '../common/swagger/error-response.dto';
 import { AssetResponseDto } from './dto/asset-response.dto';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
 import { AssetsService } from './assets.service';
 
 @ApiTags('Активы')
-@ApiExtraModels(ApiErrorResponseDto, DeleteOkResponseDto, AssetResponseDto)
+@ApiExtraModels(
+  ApiConflictErrorDto,
+  ApiErrorResponseDto,
+  ApiNotFoundErrorDto,
+  DeleteOkResponseDto,
+  AssetResponseDto,
+)
 @Controller('api/assets')
 export class AssetsApiController {
   constructor(private readonly assetsService: AssetsService) {}
@@ -67,7 +77,7 @@ export class AssetsApiController {
   @ApiCreatedResponse({ type: AssetResponseDto })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
   @ApiConflictResponse({
-    type: ApiErrorResponseDto,
+    type: ApiConflictErrorDto,
     description: 'Актив с таким тикером уже есть или пустые обязательные поля',
   })
   create(@Body() dto: CreateAssetDto) {
@@ -78,7 +88,7 @@ export class AssetsApiController {
   @ApiOperation({ summary: 'Актив по id' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: AssetResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   findOne(@Param('id') id: string) {
     return this.assetsService.findOne(id);
   }
@@ -88,9 +98,9 @@ export class AssetsApiController {
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: AssetResponseDto })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   @ApiConflictResponse({
-    type: ApiErrorResponseDto,
+    type: ApiConflictErrorDto,
     description: 'Конфликт уникальности тикера',
   })
   update(@Param('id') id: string, @Body() dto: UpdateAssetDto) {
@@ -101,9 +111,9 @@ export class AssetsApiController {
   @ApiOperation({ summary: 'Удалить актив' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: DeleteOkResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   @ApiConflictResponse({
-    type: ApiErrorResponseDto,
+    type: ApiConflictErrorDto,
     description: 'Актив используется в листингах или парах — удаление запрещено',
   })
   async remove(@Param('id') id: string) {

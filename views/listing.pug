@@ -114,13 +114,24 @@ block pageScripts
     (function () {
       if (typeof EventSource === 'undefined') return;
       toastr.options = { positionClass: 'toast-top-right', timeOut: 8000, closeButton: true };
-      var es = new EventSource('/market-news/stream');
-      es.onmessage = function (ev) {
+      var esNews = new EventSource('/market-news/stream');
+      esNews.onmessage = function (ev) {
         try {
           var p = JSON.parse(ev.data);
           if (p.type === 'created') {
             var sub = p.exchangeName ? (' · ' + p.exchangeName) : '';
             toastr.success(p.title + sub, 'Новая новость рынка');
+          }
+        } catch (e) {}
+      };
+      var esListings = new EventSource('/listings/stream');
+      esListings.onmessage = function (ev) {
+        try {
+          var p = JSON.parse(ev.data);
+          if (p.type === 'created') {
+            var subEx = p.exchangeName ? (' · ' + p.exchangeName) : '';
+            var kind = p.status === 'UPCOMING' ? 'Предстоящий' : 'Недавний';
+            toastr.success(p.title + subEx, 'Новый листинг · ' + kind);
           }
         } catch (e) {}
       };

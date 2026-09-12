@@ -79,8 +79,19 @@ export function logoFileMulterOptions() {
 
 export type LogoFormBody = {
   logoUrl?: string | null;
-  removeLogo?: string;
+  removeLogo?: string | boolean;
 };
+
+/** Удалить логотип: JSON `true`, форма `1` / `on` / `true` */
+export function wantsLogoRemoved(value: unknown): boolean {
+  if (value === true) {
+    return true;
+  }
+  if (typeof value === 'string') {
+    return value === '1' || value === 'on' || value === 'true';
+  }
+  return false;
+}
 
 /**
  * Итоговое значение logoUrl для update и нужно ли удалить старый локальный файл.
@@ -91,10 +102,7 @@ export async function applyLogoUpdateFromForm(opts: {
   body: LogoFormBody;
 }): Promise<{ logoUrl?: string | null }> {
   const { existingLogoUrl, file, body } = opts;
-  const remove =
-    body.removeLogo === '1' ||
-    body.removeLogo === 'on' ||
-    body.removeLogo === 'true';
+  const remove = wantsLogoRemoved(body.removeLogo);
 
   if (remove) {
     await unlinkLocalLogo(existingLogoUrl);

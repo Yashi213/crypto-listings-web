@@ -1,0 +1,28 @@
+extends ../layout
+
+block content
+  main.main.record-detail
+    h2.record-detail__heading Отзыв
+    p
+      strong Автор:
+      |  #{feedback.user.displayName}
+    p
+      strong Email:
+      if feedback.user.email === 'guest@listing-tracker.local'
+        |  —
+      else
+        |  #{feedback.user.email}
+    p
+      strong Дата:
+      |  #{feedback.createdAt.toLocaleString('ru-RU')}
+    if feedback.rating != null
+      p
+        strong Оценка:
+        |  #{'★'.repeat(feedback.rating)}
+    p(style="white-space:pre-wrap")= feedback.message
+    nav.record-detail__actions
+      a.nav__link(href=`/feedbacks/${feedback.id}/edit`) Редактировать
+      a.nav__link(href="/feedbacks") К списку
+    .record-detail__danger
+      form.inline-delete(method="post" action=`/feedbacks/${feedback.id}/delete` onsubmit="return confirm('Удалить отзыв?');")
+        button.link-button(type="submit") Удалить

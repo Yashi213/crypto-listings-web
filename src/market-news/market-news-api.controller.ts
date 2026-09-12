@@ -27,7 +27,10 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { setPaginationLinkHeader } from '../common/pagination/set-pagination-link-header';
 import { PAGINATED_COLLECTION_RESPONSE_HEADERS } from '../common/swagger/pagination-api.decorator';
 import { DeleteOkResponseDto } from '../common/swagger/delete-ok-response.dto';
-import { ApiErrorResponseDto } from '../common/swagger/error-response.dto';
+import {
+  ApiErrorResponseDto,
+  ApiNotFoundErrorDto,
+} from '../common/swagger/error-response.dto';
 import { CreateMarketNewDto } from './dto/create-market-new.dto';
 import { MarketNewsResponseDto } from './dto/market-news-response.dto';
 import { UpdateMarketNewDto } from './dto/update-market-new.dto';
@@ -35,7 +38,12 @@ import { MarketNewsService } from './market-news.service';
 import { MarketNewsSseService } from './market-news-sse.service';
 
 @ApiTags('Новости рынка')
-@ApiExtraModels(ApiErrorResponseDto, DeleteOkResponseDto, MarketNewsResponseDto)
+@ApiExtraModels(
+  ApiErrorResponseDto,
+  ApiNotFoundErrorDto,
+  DeleteOkResponseDto,
+  MarketNewsResponseDto,
+)
 @Controller('api/market-news')
 export class MarketNewsApiController {
   constructor(
@@ -70,7 +78,7 @@ export class MarketNewsApiController {
   @ApiCreatedResponse({ type: MarketNewsResponseDto })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
   @ApiNotFoundResponse({
-    type: ApiErrorResponseDto,
+    type: ApiNotFoundErrorDto,
     description: 'Биржа (exchangeId) не найдена',
   })
   async create(@Body() dto: CreateMarketNewDto) {
@@ -83,7 +91,7 @@ export class MarketNewsApiController {
   @ApiOperation({ summary: 'Новость по id' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: MarketNewsResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   findOne(@Param('id') id: string) {
     return this.marketNewsService.findOne(id);
   }
@@ -94,7 +102,7 @@ export class MarketNewsApiController {
   @ApiOkResponse({ type: MarketNewsResponseDto })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
   @ApiNotFoundResponse({
-    type: ApiErrorResponseDto,
+    type: ApiNotFoundErrorDto,
     description: 'Новость или связанная биржа не найдены',
   })
   async update(@Param('id') id: string, @Body() dto: UpdateMarketNewDto) {
@@ -106,7 +114,7 @@ export class MarketNewsApiController {
   @ApiOperation({ summary: 'Удалить новость' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: DeleteOkResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   async remove(@Param('id') id: string) {
     await this.marketNewsService.remove(id);
     return { ok: true };

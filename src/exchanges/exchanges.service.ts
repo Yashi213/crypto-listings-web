@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { listingWithRelationsInclude } from '../common/prisma-includes';
 import { PrismaService } from '../prisma/prisma.service';
-import { unlinkLocalLogo } from '../uploads/logo-upload.util';
+import { unlinkLocalLogo, wantsLogoRemoved } from '../uploads/logo-upload.util';
 import { CreateExchangeDto } from './dto/create-exchange.dto';
 import { UpdateExchangeDto } from './dto/update-exchange.dto';
 
@@ -139,9 +139,14 @@ export class ExchangesService {
   }
 
   async update(id: string, dto: ExchangeUpdatePayload) {
-    await this.findOne(id);
+    const row = await this.findOne(id);
     const data: { name?: string; website?: string | null; logoUrl?: string | null } =
       {};
+    const removeLogo = wantsLogoRemoved(dto.removeLogo);
+    if (removeLogo) {
+      await unlinkLocalLogo(row.logoUrl);
+      data.logoUrl = null;
+    }
     if (dto.name !== undefined) {
       const name = dto.name.trim();
       if (!name) {
@@ -152,9 +157,12 @@ export class ExchangesService {
     if (dto.website !== undefined) {
       data.website = dto.website.trim() || null;
     }
-    if (dto.logoUrl !== undefined) {
+    if (dto.logoUrl !== undefined && !removeLogo) {
       data.logoUrl =
         dto.logoUrl === null ? null : dto.logoUrl.trim() || null;
+    }
+    if (Object.keys(data).length === 0) {
+      return row;
     }
     try {
       return await this.prisma.exchange.update({

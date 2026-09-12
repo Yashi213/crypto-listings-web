@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import type { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 
@@ -102,5 +107,68 @@ export class FeedbackService {
       this.prisma.feedback.count(),
     ]);
     return { items, total };
+  }
+
+  findAllForAdmin() {
+    return this.prisma.feedback.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: { user: true },
+    });
+  }
+
+  async findOne(id: string) {
+    const row = await this.prisma.feedback.findUnique({
+      where: { id },
+      include: { user: true },
+    });
+    if (!row) {
+      throw new NotFoundException(`Отзыв с id ${id} не найден`);
+    }
+    return row;
+  }
+
+  /**
+   * Частичное обновление. rating: null или '' — убрать оценку.
+   */
+  async update(
+    id: string,
+    dto: { message?: string; rating?: string | number | null },
+  ) {
+    await this.findOne(id);
+    const data: Prisma.FeedbackUpdateInput = {};
+    if (dto.message !== undefined) {
+      const message = String(dto.message).trim();
+      if (message.length < 10) {
+        throw new BadRequestException(
+          'Текст отзыва обязателен (не менее 10 символов)',
+        );
+      }
+      data.message = message;
+    }
+    if (dto.rating !== undefined) {
+      if (dto.rating === null || dto.rating === '') {
+        data.rating = null;
+      } else {
+        data.rating = this.parseRating(dto.rating);
+      }
+    }
+    if (Object.keys(data).length === 0) {
+      throw new BadRequestException(
+        'Укажите хотя бы одно поле для обновления',
+      );
+    }
+    return this.prisma.feedback.update({
+      where: { id },
+      data,
+      include: { user: true },
+    });
+  }
+
+  async remove(id: string) {
+    await this.findOne(id);
+    return this.prisma.feedback.delete({
+      where: { id },
+      include: { user: true },
+    });
   }
 }

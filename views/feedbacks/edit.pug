@@ -1,0 +1,25 @@
+extends ../layout
+
+block content
+  main.main
+    h2 Редактирование отзыва
+    p.form-hint Автор и email не меняются здесь — только текст и оценка.
+    form.form(method="post" action=`/feedbacks/${feedback.id}/update`)
+      fieldset.form__fieldset
+        legend.form__legend Поля
+        label.form__label
+          | Комментарий
+          textarea.form__textarea(name="message" required minlength="10" maxlength="1000" rows="6")= feedback.message
+        label.form__label
+          | Оценка
+          select.form__select(name="rating")
+            option(value="" selected=feedback.rating == null) Без оценки
+            option(value="5" selected=feedback.rating === 5) Отлично (5)
+            option(value="4" selected=feedback.rating === 4) Хорошо (4)
+            option(value="3" selected=feedback.rating === 3) Удовлетворительно (3)
+            option(value="2" selected=feedback.rating === 2) Плохо (2)
+            option(value="1" selected=feedback.rating === 1) Очень плохо (1)
+      p
+        button.btn(type="submit") Сохранить
+      p
+        a.nav__link(href=`/feedbacks/${feedback.id}`) Отмена

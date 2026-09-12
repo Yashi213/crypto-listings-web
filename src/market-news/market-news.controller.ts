@@ -32,6 +32,12 @@ export class MarketNewsController {
     private readonly marketNewsSseService: MarketNewsSseService,
   ) {}
 
+  /** Должен быть выше @Get(':id'), иначе "stream" попадёт в :id и SSE не откроется. */
+  @Sse('stream')
+  newsStream(): Observable<MessageEvent> {
+    return this.marketNewsSseService.events();
+  }
+
   private nav(auth?: string, user?: string) {
     return {
       ...viewAuth(auth, user),
@@ -86,12 +92,6 @@ export class MarketNewsController {
   ) {
     const items = await this.marketNewsService.findAll();
     return { ...this.nav(auth, user), items };
-  }
-
-  /** Server-Sent Events: оповещения о новых новостях (главная подписывается через EventSource) */
-  @Sse('stream')
-  newsStream(): Observable<MessageEvent> {
-    return this.marketNewsSseService.events();
   }
 
   @Get(':id')

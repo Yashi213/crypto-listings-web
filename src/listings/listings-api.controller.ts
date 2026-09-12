@@ -28,23 +28,33 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { setPaginationLinkHeader } from '../common/pagination/set-pagination-link-header';
 import { PAGINATED_COLLECTION_RESPONSE_HEADERS } from '../common/swagger/pagination-api.decorator';
 import { DeleteOkResponseDto } from '../common/swagger/delete-ok-response.dto';
-import { ApiErrorResponseDto } from '../common/swagger/error-response.dto';
+import {
+  ApiConflictErrorDto,
+  ApiErrorResponseDto,
+  ApiNotFoundErrorDto,
+} from '../common/swagger/error-response.dto';
 import { AddTradingPairDto } from './dto/add-trading-pair.dto';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { ListingResponseDto, TradingPairResponseDto } from './dto/listing-response.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
+import { ListingsSseService } from './listings-sse.service';
 import { ListingsService } from './listings.service';
 
 @ApiTags('Листинги')
 @ApiExtraModels(
+  ApiConflictErrorDto,
   ApiErrorResponseDto,
+  ApiNotFoundErrorDto,
   DeleteOkResponseDto,
   ListingResponseDto,
   TradingPairResponseDto,
 )
 @Controller('api/listings')
 export class ListingsApiController {
-  constructor(private readonly listingsService: ListingsService) {}
+  constructor(
+    private readonly listingsService: ListingsService,
+    private readonly listingsSseService: ListingsSseService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Список листингов (пагинация)' })
@@ -76,11 +86,13 @@ export class ListingsApiController {
     description: 'Валидация или некорректные статус/дата',
   })
   @ApiNotFoundResponse({
-    type: ApiErrorResponseDto,
+    type: ApiNotFoundErrorDto,
     description: 'Биржа или основной актив не найдены',
   })
-  create(@Body() dto: CreateListingDto) {
-    return this.listingsService.create(dto);
+  async create(@Body() dto: CreateListingDto) {
+    const created = await this.listingsService.create(dto);
+    this.listingsSseService.notifyCreated(created);
+    return created;
   }
 
   @Get(':id/pairs/:pairId')
@@ -89,7 +101,7 @@ export class ListingsApiController {
   @ApiParam({ name: 'pairId', description: 'ID пары' })
   @ApiOkResponse({ type: TradingPairResponseDto })
   @ApiNotFoundResponse({
-    type: ApiErrorResponseDto,
+    type: ApiNotFoundErrorDto,
     description: 'Листинг или пара не найдены / пара не относится к листингу',
   })
   findOnePair(
@@ -108,7 +120,7 @@ export class ListingsApiController {
     headers: PAGINATED_COLLECTION_RESPONSE_HEADERS,
   })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   async findPairs(
     @Param('id') listingId: string,
     @Query() q: PaginationQueryDto,
@@ -134,11 +146,11 @@ export class ListingsApiController {
     description: 'Некорректные id активов или база = котировка',
   })
   @ApiNotFoundResponse({
-    type: ApiErrorResponseDto,
+    type: ApiNotFoundErrorDto,
     description: 'Листинг или один из активов не найден',
   })
   @ApiConflictResponse({
-    type: ApiErrorResponseDto,
+    type: ApiConflictErrorDto,
     description: 'Такая пара уже есть у листинга',
   })
   addPair(@Param('id') listingId: string, @Body() dto: AddTradingPairDto) {
@@ -150,7 +162,7 @@ export class ListingsApiController {
   @ApiParam({ name: 'id', description: 'ID листинга' })
   @ApiParam({ name: 'pairId', description: 'ID пары' })
   @ApiOkResponse({ type: DeleteOkResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   async removePair(
     @Param('id') listingId: string,
     @Param('pairId') pairId: string,
@@ -163,7 +175,7 @@ export class ListingsApiController {
   @ApiOperation({ summary: 'Листинг по id' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: ListingResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   findOne(@Param('id') id: string) {
     return this.listingsService.findOne(id);
   }
@@ -173,7 +185,7 @@ export class ListingsApiController {
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: ListingResponseDto })
   @ApiBadRequestResponse({ type: ApiErrorResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   update(@Param('id') id: string, @Body() dto: UpdateListingDto) {
     return this.listingsService.update(id, dto);
   }
@@ -182,7 +194,7 @@ export class ListingsApiController {
   @ApiOperation({ summary: 'Удалить листинг' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: DeleteOkResponseDto })
-  @ApiNotFoundResponse({ type: ApiErrorResponseDto })
+  @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })
   async remove(@Param('id') id: string) {
     await this.listingsService.remove(id);
     return { ok: true };

@@ -4,16 +4,20 @@ import {
   Delete,
   Get,
   HttpStatus,
+  MessageEvent,
   Param,
   Patch,
   Post,
   Query,
   Render,
   Res,
+  Sse,
 } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import type { Response } from 'express';
+import { Observable } from 'rxjs';
 import { viewAuth } from '../common/view-session';
+import { ListingsSseService } from './listings-sse.service';
 import { ListingsService } from './listings.service';
 import { AddTradingPairDto } from './dto/add-trading-pair.dto';
 import { CreateListingDto } from './dto/create-listing.dto';
@@ -22,7 +26,16 @@ import { UpdateListingDto } from './dto/update-listing.dto';
 @ApiExcludeController()
 @Controller('listings')
 export class ListingsController {
-  constructor(private readonly listingsService: ListingsService) {}
+  constructor(
+    private readonly listingsService: ListingsService,
+    private readonly listingsSseService: ListingsSseService,
+  ) {}
+
+  /** Выше маршрутов с :id, иначе "stream" попадёт в параметр id. */
+  @Sse('stream')
+  listingsStream(): Observable<MessageEvent> {
+    return this.listingsSseService.events();
+  }
 
   private nav(auth?: string, user?: string) {
     return {
@@ -98,6 +111,7 @@ export class ListingsController {
   @Post()
   async create(@Body() dto: CreateListingDto, @Res() res: Response) {
     const created = await this.listingsService.create(dto);
+    this.listingsSseService.notifyCreated(created);
     return res.redirect(HttpStatus.FOUND, `/listings/${created.id}`);
   }
 

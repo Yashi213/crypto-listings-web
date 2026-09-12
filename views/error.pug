@@ -1,0 +1,14 @@
+extends layout
+
+block headMeta
+  meta(name="robots" content="noindex")
+
+block content
+  main.main
+    section.error-page
+      h1 Ошибка #{errorStatus}
+      p.error-page__message= errorMessage
+      p.error-page__actions
+        a(href="javascript:history.back()") Назад
+        |  · 
+        a(href="/") На главную

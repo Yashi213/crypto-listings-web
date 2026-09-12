@@ -106,7 +106,7 @@ export class AssetsController {
   @UseInterceptors(FileInterceptor('logoFile', logoFileMulterOptions()))
   async updateForm(
     @Param('id') id: string,
-    @Body() body: UpdateAssetDto & { removeLogo?: string },
+    @Body() body: UpdateAssetDto,
     @UploadedFile() logoFile: Express.Multer.File | undefined,
     @Res() res: Response,
   ) {

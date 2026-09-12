@@ -113,7 +113,7 @@ export class ExchangesController {
   @UseInterceptors(FileInterceptor('logoFile', logoFileMulterOptions()))
   async updateForm(
     @Param('id') id: string,
-    @Body() body: UpdateExchangeDto & { removeLogo?: string },
+    @Body() body: UpdateExchangeDto,
     @UploadedFile() logoFile: Express.Multer.File | undefined,
     @Res() res: Response,
   ) {
