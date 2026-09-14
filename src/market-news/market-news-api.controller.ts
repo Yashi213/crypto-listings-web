@@ -35,6 +35,7 @@ import { CreateMarketNewDto } from './dto/create-market-new.dto';
 import { MarketNewsResponseDto } from './dto/market-news-response.dto';
 import { UpdateMarketNewDto } from './dto/update-market-new.dto';
 import { MarketNewsService } from './market-news.service';
+import { CacheControl } from '../common/decorators/cache-control.decorator';
 import { MarketNewsSseService } from './market-news-sse.service';
 
 @ApiTags('Новости рынка')
@@ -52,6 +53,7 @@ export class MarketNewsApiController {
   ) {}
 
   @Get()
+  @CacheControl()
   @ApiOperation({ summary: 'Список новостей (пагинация)' })
   @ApiOkResponse({
     type: MarketNewsResponseDto,
@@ -88,6 +90,7 @@ export class MarketNewsApiController {
   }
 
   @Get(':id')
+  @CacheControl()
   @ApiOperation({ summary: 'Новость по id' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: MarketNewsResponseDto })

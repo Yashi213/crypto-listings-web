@@ -36,6 +36,7 @@ import {
 import { AssetResponseDto } from './dto/asset-response.dto';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
+import { CacheControl } from '../common/decorators/cache-control.decorator';
 import { AssetsService } from './assets.service';
 
 @ApiTags('Активы')
@@ -51,6 +52,7 @@ export class AssetsApiController {
   constructor(private readonly assetsService: AssetsService) {}
 
   @Get()
+  @CacheControl()
   @ApiOperation({ summary: 'Список активов (пагинация)' })
   @ApiOkResponse({
     type: AssetResponseDto,
@@ -85,6 +87,7 @@ export class AssetsApiController {
   }
 
   @Get(':id')
+  @CacheControl()
   @ApiOperation({ summary: 'Актив по id' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: AssetResponseDto })

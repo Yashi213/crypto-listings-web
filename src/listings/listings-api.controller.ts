@@ -11,7 +11,9 @@ import {
   Query,
   Req,
   Res,
+  UseInterceptors,
 } from '@nestjs/common';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import {
   ApiBadRequestResponse,
   ApiConflictResponse,
@@ -37,6 +39,7 @@ import { AddTradingPairDto } from './dto/add-trading-pair.dto';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { ListingResponseDto, TradingPairResponseDto } from './dto/listing-response.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
+import { CacheControl } from '../common/decorators/cache-control.decorator';
 import { ListingsSseService } from './listings-sse.service';
 import { ListingsService } from './listings.service';
 
@@ -49,6 +52,8 @@ import { ListingsService } from './listings.service';
   ListingResponseDto,
   TradingPairResponseDto,
 )
+@UseInterceptors(CacheInterceptor)
+@CacheTTL(5_000)
 @Controller('api/listings')
 export class ListingsApiController {
   constructor(
@@ -57,6 +62,7 @@ export class ListingsApiController {
   ) {}
 
   @Get()
+  @CacheControl()
   @ApiOperation({ summary: 'Список листингов (пагинация)' })
   @ApiOkResponse({
     type: ListingResponseDto,
@@ -96,6 +102,7 @@ export class ListingsApiController {
   }
 
   @Get(':id/pairs/:pairId')
+  @CacheControl()
   @ApiOperation({ summary: 'Одна торговая пара листинга' })
   @ApiParam({ name: 'id', description: 'ID листинга' })
   @ApiParam({ name: 'pairId', description: 'ID пары' })
@@ -112,6 +119,7 @@ export class ListingsApiController {
   }
 
   @Get(':id/pairs')
+  @CacheControl()
   @ApiOperation({ summary: 'Торговые пары листинга (пагинация)' })
   @ApiParam({ name: 'id', description: 'ID листинга' })
   @ApiOkResponse({
@@ -172,6 +180,7 @@ export class ListingsApiController {
   }
 
   @Get(':id')
+  @CacheControl()
   @ApiOperation({ summary: 'Листинг по id' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: ListingResponseDto })

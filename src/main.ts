@@ -12,7 +12,10 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   /** Dev: другой origin (в т.ч. localhost vs 127.0.0.1) не ломает Swagger Try it out. */
-  app.enableCors({ origin: true });
+  app.enableCors({
+    origin: true,
+    exposedHeaders: ['X-Elapsed-Time', 'ETag', 'Cache-Control'],
+  });
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Listing Tracker API')

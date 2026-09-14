@@ -38,6 +38,7 @@ import { MarketNewsResponseDto } from '../market-news/dto/market-news-response.d
 import { CreateExchangeDto } from './dto/create-exchange.dto';
 import { ExchangeResponseDto } from './dto/exchange-response.dto';
 import { UpdateExchangeDto } from './dto/update-exchange.dto';
+import { CacheControl } from '../common/decorators/cache-control.decorator';
 import { ExchangesService } from './exchanges.service';
 
 @ApiTags('Биржи')
@@ -55,6 +56,7 @@ export class ExchangesApiController {
   constructor(private readonly exchangesService: ExchangesService) {}
 
   @Get()
+  @CacheControl()
   @ApiOperation({
     summary: 'Список бирж',
     description:
@@ -99,6 +101,7 @@ export class ExchangesApiController {
   }
 
   @Get(':id/listings/:listingId')
+  @CacheControl()
   @ApiOperation({ summary: 'Один листинг биржи по id' })
   @ApiParam({ name: 'id', description: 'ID биржи' })
   @ApiParam({ name: 'listingId', description: 'ID листинга' })
@@ -115,6 +118,7 @@ export class ExchangesApiController {
   }
 
   @Get(':id/listings')
+  @CacheControl()
   @ApiOperation({ summary: 'Листинги биржи (пагинация)' })
   @ApiParam({ name: 'id', description: 'ID биржи' })
   @ApiOkResponse({
@@ -144,6 +148,7 @@ export class ExchangesApiController {
   }
 
   @Get(':id/market-news/:newsId')
+  @CacheControl()
   @ApiOperation({ summary: 'Одна новость рынка биржи' })
   @ApiParam({ name: 'id', description: 'ID биржи' })
   @ApiParam({ name: 'newsId', description: 'ID новости' })
@@ -160,6 +165,7 @@ export class ExchangesApiController {
   }
 
   @Get(':id/market-news')
+  @CacheControl()
   @ApiOperation({ summary: 'Новости рынка биржи (пагинация)' })
   @ApiParam({ name: 'id', description: 'ID биржи' })
   @ApiOkResponse({
@@ -189,6 +195,7 @@ export class ExchangesApiController {
   }
 
   @Get(':id')
+  @CacheControl()
   @ApiOperation({ summary: 'Биржа по id' })
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: ExchangeResponseDto })

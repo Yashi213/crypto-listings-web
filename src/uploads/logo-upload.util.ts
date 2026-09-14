@@ -1,8 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
-import { randomUUID } from 'crypto';
-import { mkdirSync } from 'fs';
 import { unlink } from 'fs/promises';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer';
 import { extname, join } from 'path';
 
 export const UPLOAD_LOGOS_PREFIX = '/uploads/logos';
@@ -11,10 +9,6 @@ const ALLOWED_EXT = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg']);
 
 export function logosDiskDir(): string {
   return join(process.cwd(), 'public', 'uploads', 'logos');
-}
-
-export function publicLogoPath(filename: string): string {
-  return `${UPLOAD_LOGOS_PREFIX}/${filename}`;
 }
 
 export function isLocalUploadedLogo(url: string | null | undefined): boolean {
@@ -45,17 +39,8 @@ export async function unlinkLocalLogo(
 
 export function logoFileMulterOptions() {
   return {
-    storage: diskStorage({
-      destination: (_req, _file, cb) => {
-        const dir = logosDiskDir();
-        mkdirSync(dir, { recursive: true });
-        cb(null, dir);
-      },
-      filename: (_req, file, cb) => {
-        const ext = extname(file.originalname).toLowerCase();
-        cb(null, `${randomUUID()}${ext}`);
-      },
-    }),
+    // Файл нужен AWS SDK как Buffer; на локальный диск его не записываем.
+    storage: memoryStorage(),
     limits: { fileSize: 2 * 1024 * 1024 },
     fileFilter: (_req, file, cb) => {
       if (!file.mimetype.startsWith('image/')) {
@@ -77,11 +62,6 @@ export function logoFileMulterOptions() {
   };
 }
 
-export type LogoFormBody = {
-  logoUrl?: string | null;
-  removeLogo?: string | boolean;
-};
-
 /** Удалить логотип: JSON `true`, форма `1` / `on` / `true` */
 export function wantsLogoRemoved(value: unknown): boolean {
   if (value === true) {
@@ -91,56 +71,4 @@ export function wantsLogoRemoved(value: unknown): boolean {
     return value === '1' || value === 'on' || value === 'true';
   }
   return false;
-}
-
-/**
- * Итоговое значение logoUrl для update и нужно ли удалить старый локальный файл.
- */
-export async function applyLogoUpdateFromForm(opts: {
-  existingLogoUrl: string | null;
-  file: Express.Multer.File | undefined;
-  body: LogoFormBody;
-}): Promise<{ logoUrl?: string | null }> {
-  const { existingLogoUrl, file, body } = opts;
-  const remove = wantsLogoRemoved(body.removeLogo);
-
-  if (remove) {
-    await unlinkLocalLogo(existingLogoUrl);
-    return { logoUrl: null };
-  }
-
-  if (file) {
-    if (isLocalUploadedLogo(existingLogoUrl)) {
-      await unlinkLocalLogo(existingLogoUrl);
-    }
-    return { logoUrl: publicLogoPath(file.filename) };
-  }
-
-  const trimmed = body.logoUrl?.trim() ?? '';
-  if (trimmed !== '') {
-    if (
-      isLocalUploadedLogo(existingLogoUrl) &&
-      trimmed !== existingLogoUrl
-    ) {
-      await unlinkLocalLogo(existingLogoUrl);
-    }
-    return { logoUrl: trimmed };
-  }
-
-  if (isLocalUploadedLogo(existingLogoUrl)) {
-    return {};
-  }
-
-  return { logoUrl: null };
-}
-
-export function logoUrlForCreate(
-  file: Express.Multer.File | undefined,
-  logoUrlField: string | undefined,
-): string | null {
-  if (file) {
-    return publicLogoPath(file.filename);
-  }
-  const t = logoUrlField?.trim();
-  return t ? t : null;
 }

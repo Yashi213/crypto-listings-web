@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ObjectStorageService } from '../object-storage/object-storage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { unlinkLocalLogo, wantsLogoRemoved } from '../uploads/logo-upload.util';
 import { CreateAssetDto } from './dto/create-asset.dto';
@@ -14,7 +15,10 @@ export type AssetUpdatePayload = Omit<UpdateAssetDto, 'logoUrl'> & {
 
 @Injectable()
 export class AssetsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly objectStorage: ObjectStorageService,
+  ) {}
 
   async create(dto: CreateAssetDto) {
     const symbol = dto.symbol?.trim().toUpperCase();
@@ -81,7 +85,6 @@ export class AssetsService {
     } = {};
     const removeLogo = wantsLogoRemoved(dto.removeLogo);
     if (removeLogo) {
-      await unlinkLocalLogo(row.logoUrl);
       data.logoUrl = null;
     }
     if (dto.symbol !== undefined) {
@@ -112,10 +115,14 @@ export class AssetsService {
       return row;
     }
     try {
-      return await this.prisma.asset.update({
+      const updated = await this.prisma.asset.update({
         where: { id },
         data,
       });
+      if (data.logoUrl !== undefined && data.logoUrl !== row.logoUrl) {
+        await this.deleteStoredLogo(row.logoUrl);
+      }
+      return updated;
     } catch (e: unknown) {
       if (
         e &&
@@ -131,7 +138,6 @@ export class AssetsService {
 
   async remove(id: string) {
     const row = await this.findOne(id);
-    await unlinkLocalLogo(row.logoUrl);
     try {
       await this.prisma.asset.delete({ where: { id } });
     } catch (e: unknown) {
@@ -147,5 +153,11 @@ export class AssetsService {
       }
       throw e;
     }
+    await this.deleteStoredLogo(row.logoUrl);
+  }
+
+  private async deleteStoredLogo(url: string | null): Promise<void> {
+    await unlinkLocalLogo(url);
+    await this.objectStorage.deleteByUrl(url);
   }
 }

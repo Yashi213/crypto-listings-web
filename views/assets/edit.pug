@@ -3,8 +3,7 @@ extends ../layout
 block content
   main.main.crud-form
     h2 #{asset.symbol}
-    - var logoLocal = asset.logoUrl && asset.logoUrl.indexOf('/uploads/logos/') === 0
-    - var logoUrlValue = logoLocal ? '' : (asset.logoUrl || '')
+    - var logoUrlValue = asset.logoUrl || ''
     form.form(method="post" action=`/assets/${asset.id}/update` enctype="multipart/form-data")
       fieldset.form__fieldset
         legend.form__legend Актив
@@ -20,7 +19,7 @@ block content
         label.form__label
           | Сайт
           input.form__input(type="url" name="website" value=asset.website || '')
-        if logoLocal
+        if asset.logoUrl
           img.form__logo-preview(src=asset.logoUrl alt="" loading="lazy")
           label.form__inline-check
             input(type="checkbox" name="removeLogo" value="1")

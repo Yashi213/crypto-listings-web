@@ -13,19 +13,11 @@ function formatLoadTime(ms) {
 }
 
 export function addLoadTimeToFooter() {
-    const footer = document.querySelector('.footer__content');
-    if (!footer) return;
-
-    let loadTimeElement = document.getElementById('page-load-time');
-    if (!loadTimeElement) {
-        loadTimeElement = document.createElement('p');
-        loadTimeElement.id = 'page-load-time';
-        loadTimeElement.style.cssText = 'margin: 0.5rem 0 0 0; font-size: 0.875rem; opacity: 0.8;';
-        footer.appendChild(loadTimeElement);
-    }
+    const loadTimeElement = document.getElementById('page-load-time');
+    if (!loadTimeElement) return;
 
     const loadTimeMs = calculateLoadTime();
-    loadTimeElement.textContent = 'Время загрузки страницы: ' + formatLoadTime(loadTimeMs);
+    loadTimeElement.textContent = 'Клиент: ' + formatLoadTime(loadTimeMs);
 }
 
 function normalizePath(path) {

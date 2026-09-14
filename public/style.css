@@ -790,6 +790,11 @@ strong { font-weight: 700; color: var(--text-dark); }
     gap: 1rem;
 }
 
+.footer__timing {
+    margin: 0.5rem 0 0;
+    font-size: 0.875rem;
+    opacity: 0.8;
+}
 .footer__address { font-style: normal; }
 .footer__address p { margin-bottom: 0.25rem; }
 .footer__link { color: var(--bg-white); text-decoration: none; }

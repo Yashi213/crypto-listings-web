@@ -33,6 +33,7 @@ import {
 import { CreateFeedbackApiDto } from './dto/create-feedback-api.dto';
 import { FeedbackResponseDto } from './dto/feedback-response.dto';
 import { UpdateFeedbackApiDto } from './dto/update-feedback-api.dto';
+import { CacheControl } from '../common/decorators/cache-control.decorator';
 import { FeedbackService } from './feedback.service';
 
 @ApiTags('Отзывы')
@@ -48,6 +49,7 @@ export class FeedbackApiController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   @Get()
+  @CacheControl()
   @ApiOperation({ summary: 'Список отзывов (пагинация)' })
   @ApiOkResponse({
     type: FeedbackResponseDto,
@@ -69,6 +71,7 @@ export class FeedbackApiController {
   }
 
   @Get(':id')
+  @CacheControl()
   @ApiOperation({ summary: 'Один отзыв по id' })
   @ApiOkResponse({ type: FeedbackResponseDto })
   @ApiNotFoundResponse({ type: ApiNotFoundErrorDto })

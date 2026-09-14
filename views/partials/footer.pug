@@ -11,6 +11,11 @@ footer.footer
       p Контакты: info@listing-tracker.com
       p Telegram: @listing_tracker
     p &copy; 2024 Listing Tracker. Все права защищены.
+    p.footer__timing#page-timing
+      if typeof serverElapsedMs === 'number'
+        span#server-elapsed Сервер: #{serverElapsedMs} мс
+        |  
+      span#page-load-time
     nav.footer__nav
       ul.footer__list
         li

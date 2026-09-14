@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { listingWithRelationsInclude } from '../common/prisma-includes';
+import { ObjectStorageService } from '../object-storage/object-storage.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { unlinkLocalLogo, wantsLogoRemoved } from '../uploads/logo-upload.util';
 import { CreateExchangeDto } from './dto/create-exchange.dto';
@@ -15,7 +16,10 @@ export type ExchangeUpdatePayload = Omit<UpdateExchangeDto, 'logoUrl'> & {
 
 @Injectable()
 export class ExchangesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly objectStorage: ObjectStorageService,
+  ) {}
 
   async create(dto: CreateExchangeDto) {
     const name = dto.name?.trim();
@@ -144,7 +148,6 @@ export class ExchangesService {
       {};
     const removeLogo = wantsLogoRemoved(dto.removeLogo);
     if (removeLogo) {
-      await unlinkLocalLogo(row.logoUrl);
       data.logoUrl = null;
     }
     if (dto.name !== undefined) {
@@ -165,10 +168,14 @@ export class ExchangesService {
       return row;
     }
     try {
-      return await this.prisma.exchange.update({
+      const updated = await this.prisma.exchange.update({
         where: { id },
         data,
       });
+      if (data.logoUrl !== undefined && data.logoUrl !== row.logoUrl) {
+        await this.deleteStoredLogo(row.logoUrl);
+      }
+      return updated;
     } catch (e: unknown) {
       if (
         e &&
@@ -184,7 +191,12 @@ export class ExchangesService {
 
   async remove(id: string) {
     const row = await this.findOne(id);
-    await unlinkLocalLogo(row.logoUrl);
     await this.prisma.exchange.delete({ where: { id } });
+    await this.deleteStoredLogo(row.logoUrl);
+  }
+
+  private async deleteStoredLogo(url: string | null): Promise<void> {
+    await unlinkLocalLogo(url);
+    await this.objectStorage.deleteByUrl(url);
   }
 }

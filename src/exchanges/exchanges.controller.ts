@@ -17,11 +17,8 @@ import { ApiExcludeController } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { viewAuth } from '../common/view-session';
-import {
-  applyLogoUpdateFromForm,
-  logoFileMulterOptions,
-  logoUrlForCreate,
-} from '../uploads/logo-upload.util';
+import { ObjectStorageService } from '../object-storage/object-storage.service';
+import { logoFileMulterOptions } from '../uploads/logo-upload.util';
 import { ExchangesService } from './exchanges.service';
 import { CreateExchangeDto } from './dto/create-exchange.dto';
 import { UpdateExchangeDto } from './dto/update-exchange.dto';
@@ -29,7 +26,10 @@ import { UpdateExchangeDto } from './dto/update-exchange.dto';
 @ApiExcludeController()
 @Controller('exchanges')
 export class ExchangesController {
-  constructor(private readonly exchangesService: ExchangesService) {}
+  constructor(
+    private readonly exchangesService: ExchangesService,
+    private readonly objectStorage: ObjectStorageService,
+  ) {}
 
   private navExchanges(auth?: string, user?: string) {
     return {
@@ -101,10 +101,13 @@ export class ExchangesController {
     @UploadedFile() logoFile: Express.Multer.File | undefined,
     @Res() res: Response,
   ) {
+    const uploadedLogoUrl = logoFile
+      ? await this.objectStorage.uploadImage(logoFile, 'exchanges')
+      : undefined;
     const created = await this.exchangesService.create({
       name: body.name,
       website: body.website,
-      logoUrl: logoUrlForCreate(logoFile, body.logoUrl) ?? undefined,
+      logoUrl: uploadedLogoUrl ?? body.logoUrl,
     });
     return res.redirect(HttpStatus.FOUND, `/exchanges/${created.id}`);
   }
@@ -117,16 +120,14 @@ export class ExchangesController {
     @UploadedFile() logoFile: Express.Multer.File | undefined,
     @Res() res: Response,
   ) {
-    const prev = await this.exchangesService.findOne(id);
-    const logoPatch = await applyLogoUpdateFromForm({
-      existingLogoUrl: prev.logoUrl,
-      file: logoFile,
-      body: { logoUrl: body.logoUrl, removeLogo: body.removeLogo },
-    });
+    const uploadedLogoUrl = logoFile
+      ? await this.objectStorage.uploadImage(logoFile, 'exchanges')
+      : undefined;
     await this.exchangesService.update(id, {
       name: body.name,
       website: body.website,
-      ...logoPatch,
+      logoUrl: uploadedLogoUrl ?? body.logoUrl,
+      removeLogo: body.removeLogo,
     });
     return res.redirect(HttpStatus.FOUND, `/exchanges/${id}`);
   }

@@ -17,11 +17,8 @@ import { ApiExcludeController } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { viewAuth } from '../common/view-session';
-import {
-  applyLogoUpdateFromForm,
-  logoFileMulterOptions,
-  logoUrlForCreate,
-} from '../uploads/logo-upload.util';
+import { ObjectStorageService } from '../object-storage/object-storage.service';
+import { logoFileMulterOptions } from '../uploads/logo-upload.util';
 import { AssetsService } from './assets.service';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
@@ -29,7 +26,10 @@ import { UpdateAssetDto } from './dto/update-asset.dto';
 @ApiExcludeController()
 @Controller('assets')
 export class AssetsController {
-  constructor(private readonly assetsService: AssetsService) {}
+  constructor(
+    private readonly assetsService: AssetsService,
+    private readonly objectStorage: ObjectStorageService,
+  ) {}
 
   private nav(auth?: string, user?: string) {
     return {
@@ -92,12 +92,15 @@ export class AssetsController {
     @UploadedFile() logoFile: Express.Multer.File | undefined,
     @Res() res: Response,
   ) {
+    const uploadedLogoUrl = logoFile
+      ? await this.objectStorage.uploadImage(logoFile, 'assets')
+      : undefined;
     const created = await this.assetsService.create({
       symbol: body.symbol,
       name: body.name,
       description: body.description,
       website: body.website,
-      logoUrl: logoUrlForCreate(logoFile, body.logoUrl) ?? undefined,
+      logoUrl: uploadedLogoUrl ?? body.logoUrl,
     });
     return res.redirect(HttpStatus.FOUND, `/assets/${created.id}`);
   }
@@ -110,18 +113,16 @@ export class AssetsController {
     @UploadedFile() logoFile: Express.Multer.File | undefined,
     @Res() res: Response,
   ) {
-    const prev = await this.assetsService.findOne(id);
-    const logoPatch = await applyLogoUpdateFromForm({
-      existingLogoUrl: prev.logoUrl,
-      file: logoFile,
-      body: { logoUrl: body.logoUrl, removeLogo: body.removeLogo },
-    });
+    const uploadedLogoUrl = logoFile
+      ? await this.objectStorage.uploadImage(logoFile, 'assets')
+      : undefined;
     await this.assetsService.update(id, {
       symbol: body.symbol,
       name: body.name,
       description: body.description,
       website: body.website,
-      ...logoPatch,
+      logoUrl: uploadedLogoUrl ?? body.logoUrl,
+      removeLogo: body.removeLogo,
     });
     return res.redirect(HttpStatus.FOUND, `/assets/${id}`);
   }
