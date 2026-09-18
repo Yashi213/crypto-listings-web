@@ -39,9 +39,12 @@ import { CreateExchangeDto } from './dto/create-exchange.dto';
 import { ExchangeResponseDto } from './dto/exchange-response.dto';
 import { UpdateExchangeDto } from './dto/update-exchange.dto';
 import { CacheControl } from '../common/decorators/cache-control.decorator';
+import { AdminOnly } from '../auth/roles.decorator';
+import { PublicAccess } from '../auth/public-access.decorator';
 import { ExchangesService } from './exchanges.service';
 
 @ApiTags('Биржи')
+@PublicAccess()
 @ApiExtraModels(
   ApiConflictErrorDto,
   ApiErrorResponseDto,
@@ -84,6 +87,7 @@ export class ExchangesApiController {
     return items;
   }
 
+  @AdminOnly()
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Создать биржу' })
@@ -207,6 +211,7 @@ export class ExchangesApiController {
     return this.exchangesService.findOne(id);
   }
 
+  @AdminOnly()
   @Patch(':id')
   @ApiOperation({ summary: 'Частично обновить биржу' })
   @ApiParam({ name: 'id' })
@@ -221,6 +226,7 @@ export class ExchangesApiController {
     return this.exchangesService.update(id, dto);
   }
 
+  @AdminOnly()
   @Delete(':id')
   @ApiOperation({ summary: 'Удалить биржу' })
   @ApiParam({ name: 'id' })

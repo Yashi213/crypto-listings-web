@@ -1,6 +1,5 @@
 import {
   Allow,
-  IsEmail,
   IsOptional,
   IsString,
   Matches,
@@ -20,24 +19,10 @@ export class CreateFeedbackDto {
   message!: string;
 
   @IsOptional()
-  @ValidateIf((o) => o.rating !== undefined && String(o.rating).trim() !== '')
+  @ValidateIf(
+    (o: CreateFeedbackDto) =>
+      o.rating !== undefined && String(o.rating).trim() !== '',
+  )
   @Matches(/^[1-5]$/)
   rating?: string;
-
-  @IsOptional()
-  @ValidateIf(
-    (o: CreateFeedbackDto) =>
-      !!String(o.email ?? '').trim() || !!String(o.displayName ?? '').trim(),
-  )
-  @IsString()
-  @MinLength(3)
-  displayName?: string;
-
-  @IsOptional()
-  @ValidateIf(
-    (o: CreateFeedbackDto) =>
-      !!String(o.email ?? '').trim() || !!String(o.displayName ?? '').trim(),
-  )
-  @IsEmail()
-  email?: string;
 }

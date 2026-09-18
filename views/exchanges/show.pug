@@ -17,8 +17,10 @@ block content
         else
           | —
     nav.record-detail__actions
-      a.nav__link(href=`/exchanges/${exchange.id}/edit`) Редактировать
+      if isAdmin
+        a.nav__link(href=`/exchanges/${exchange.id}/edit`) Редактировать
       a.nav__link(href="/exchanges") К списку
-    .record-detail__danger
-      form.inline-delete(method="post" action=`/exchanges/${exchange.id}/delete` onsubmit="return confirm('Удалить биржу?');")
-        button.link-button(type="submit") Удалить
+    if isAdmin
+      .record-detail__danger
+        form.inline-delete(method="post" action=`/exchanges/${exchange.id}/delete` onsubmit="return confirm('Удалить биржу?');")
+          button.link-button(type="submit") Удалить

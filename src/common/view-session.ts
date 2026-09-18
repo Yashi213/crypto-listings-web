@@ -1,7 +1,4 @@
-export function viewAuth(auth?: string, user?: string) {
-  const isAuth = auth === '1' || auth === 'true';
-  return {
-    isAuth,
-    userName: user || 'Пользователь',
-  };
+/** Данные сессии в шаблоны кладёт ViewAuthInterceptor, не query ?auth=1. */
+export function viewAuth(_auth?: string, _user?: string) {
+  return {};
 }

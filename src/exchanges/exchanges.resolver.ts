@@ -1,4 +1,15 @@
-import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  ID,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
+import { UserRole } from '@prisma/client';
+import { PublicAccess } from '../auth/public-access.decorator';
+import { Roles } from '../auth/roles.decorator';
 import { paginatedComplexity } from '../graphql/complexity.util';
 import { PaginationArgs } from '../graphql/pagination.args';
 import { toPage } from '../graphql/paginated';
@@ -12,12 +23,15 @@ import {
   UpdateExchangeInput,
 } from './graphql/exchange.types';
 
+@PublicAccess()
 @Resolver(() => Exchange)
 export class ExchangesResolver {
   constructor(private readonly exchangesService: ExchangesService) {}
 
   @Query(() => Exchange, { description: 'Одна биржа по id' })
-  exchange(@Args('id', { type: () => ID, description: 'ID биржи' }) id: string) {
+  exchange(
+    @Args('id', { type: () => ID, description: 'ID биржи' }) id: string,
+  ) {
     return this.exchangesService.findOne(id);
   }
 
@@ -35,11 +49,13 @@ export class ExchangesResolver {
     return toPage(items, total, page, limit);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Exchange, { description: 'Создать биржу' })
   createExchange(@Args('input') input: CreateExchangeInput) {
     return this.exchangesService.create(input);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Exchange, { description: 'Частично обновить биржу' })
   updateExchange(
     @Args('id', { type: () => ID, description: 'ID биржи' }) id: string,
@@ -48,6 +64,7 @@ export class ExchangesResolver {
     return this.exchangesService.update(id, input);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Boolean, { description: 'Удалить биржу' })
   async removeExchange(
     @Args('id', { type: () => ID, description: 'ID биржи' }) id: string,

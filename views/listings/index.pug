@@ -3,8 +3,9 @@ extends ../layout
 block content
   main.main
     h2 Листинги
-    p.crud-toolbar
-      a.btn(href="/listings/add") + Добавить листинг
+    if isAdmin
+      p.crud-toolbar
+        a.btn(href="/listings/add") + Добавить листинг
     if items.length === 0
       p Записей нет. Нужны биржа и при необходимости активы в справочниках.
     else
@@ -31,7 +32,10 @@ block content
                 else
                   = row.pairs.map(function (pair) { return pair.baseAsset.symbol + '/' + pair.quoteAsset.symbol; }).join(', ')
               td.stats-table__actions(data-label="Действия")
-                a(href=`/listings/${row.id}/edit`) Изменить
-                |  
-                form.inline-delete(method="post" action=`/listings/${row.id}/delete` style="display:inline" onsubmit="return confirm('Удалить листинг и связанные пары?');")
-                  button.link-button(type="submit") Удалить
+                if isAdmin
+                  a(href=`/listings/${row.id}/edit`) Изменить
+                  |  
+                  form.inline-delete(method="post" action=`/listings/${row.id}/delete` style="display:inline" onsubmit="return confirm('Удалить листинг и связанные пары?');")
+                    button.link-button(type="submit") Удалить
+                else
+                  | —

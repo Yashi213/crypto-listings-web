@@ -1,5 +1,18 @@
 import { NotFoundException } from '@nestjs/common';
-import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  ID,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
+import { UserRole } from '@prisma/client';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { PublicAccess } from '../auth/public-access.decorator';
+import { AuthRequired, Roles } from '../auth/roles.decorator';
+import type { AuthUser } from '../auth/auth.types';
 import { paginatedComplexity } from '../graphql/complexity.util';
 import { PaginationArgs } from '../graphql/pagination.args';
 import { toPage } from '../graphql/paginated';
@@ -12,12 +25,15 @@ import {
   UpdateFeedbackInput,
 } from './graphql/feedback.types';
 
+@PublicAccess()
 @Resolver(() => Feedback)
 export class FeedbackResolver {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   @Query(() => Feedback, { description: 'Один отзыв по id' })
-  feedback(@Args('id', { type: () => ID, description: 'ID отзыва' }) id: string) {
+  feedback(
+    @Args('id', { type: () => ID, description: 'ID отзыва' }) id: string,
+  ) {
     return this.feedbackService.findOne(id);
   }
 
@@ -35,19 +51,27 @@ export class FeedbackResolver {
     return toPage(items, total, page, limit);
   }
 
-  @Mutation(() => Feedback, { description: 'Создать отзыв' })
-  createFeedback(@Args('input') input: CreateFeedbackInput) {
-    return this.feedbackService.create({
-      message: input.message,
-      rating:
-        input.rating !== undefined && input.rating !== null
-          ? String(input.rating)
-          : undefined,
-      displayName: input.displayName,
-      email: input.email,
-    });
+  @AuthRequired()
+  @Mutation(() => Feedback, {
+    description: 'Создать отзыв (только зарегистрированный пользователь)',
+  })
+  createFeedback(
+    @Args('input') input: CreateFeedbackInput,
+    @CurrentUser() actor: AuthUser,
+  ) {
+    return this.feedbackService.create(
+      {
+        message: input.message,
+        rating:
+          input.rating !== undefined && input.rating !== null
+            ? String(input.rating)
+            : undefined,
+      },
+      actor,
+    );
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Feedback, { description: 'Частично обновить отзыв' })
   updateFeedback(
     @Args('id', { type: () => ID, description: 'ID отзыва' }) id: string,
@@ -59,6 +83,7 @@ export class FeedbackResolver {
     });
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Boolean, { description: 'Удалить отзыв' })
   async removeFeedback(
     @Args('id', { type: () => ID, description: 'ID отзыва' }) id: string,

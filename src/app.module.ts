@@ -6,6 +6,8 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { authOptionsFromEnv } from './auth/auth-module.options';
+import { AuthModule } from './auth/auth.module';
 import { ObjectStorageModule } from './object-storage/object-storage.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ExchangesModule } from './exchanges/exchanges.module';
@@ -33,6 +35,7 @@ import './graphql/enums';
       isGlobal: true,
       ttl: 5_000,
     }),
+    AuthModule.forRoot(authOptionsFromEnv()),
     ObjectStorageModule,
     PrismaModule,
     AssetsModule,

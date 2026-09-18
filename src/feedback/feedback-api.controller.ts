@@ -34,9 +34,14 @@ import { CreateFeedbackApiDto } from './dto/create-feedback-api.dto';
 import { FeedbackResponseDto } from './dto/feedback-response.dto';
 import { UpdateFeedbackApiDto } from './dto/update-feedback-api.dto';
 import { CacheControl } from '../common/decorators/cache-control.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { AdminOnly, AuthRequired } from '../auth/roles.decorator';
+import { PublicAccess } from '../auth/public-access.decorator';
+import type { AuthUser } from '../auth/auth.types';
 import { FeedbackService } from './feedback.service';
 
 @ApiTags('Отзывы')
+@PublicAccess()
 @ApiExtraModels(
   ApiErrorResponseDto,
   ApiNotFoundErrorDto,
@@ -79,27 +84,32 @@ export class FeedbackApiController {
     return this.feedbackService.findOne(id);
   }
 
+  @AuthRequired()
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Создать отзыв (JSON API)' })
+  @ApiOperation({
+    summary: 'Создать отзыв (JSON API)',
+    description: 'Только для вошедшего пользователя. Автор берётся из сессии.',
+  })
   @ApiCreatedResponse({ type: FeedbackResponseDto })
   @ApiBadRequestResponse({
     type: ApiErrorResponseDto,
-    description:
-      'Ошибка валидации DTO или бизнес-правил (сообщение, рейтинг, ФИО/email)',
+    description: 'Ошибка валидации DTO или бизнес-правил',
   })
-  create(@Body() dto: CreateFeedbackApiDto) {
-    return this.feedbackService.create({
-      message: dto.message,
-      rating:
-        dto.rating !== undefined && dto.rating !== null
-          ? String(dto.rating)
-          : undefined,
-      displayName: dto.displayName,
-      email: dto.email,
-    });
+  create(@Body() dto: CreateFeedbackApiDto, @CurrentUser() actor: AuthUser) {
+    return this.feedbackService.create(
+      {
+        message: dto.message,
+        rating:
+          dto.rating !== undefined && dto.rating !== null
+            ? String(dto.rating)
+            : undefined,
+      },
+      actor,
+    );
   }
 
+  @AdminOnly()
   @Patch(':id')
   @ApiOperation({ summary: 'Частично обновить отзыв' })
   @ApiOkResponse({ type: FeedbackResponseDto })
@@ -112,6 +122,7 @@ export class FeedbackApiController {
     });
   }
 
+  @AdminOnly()
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Удалить отзыв' })

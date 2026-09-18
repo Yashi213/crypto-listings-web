@@ -1,0 +1,31 @@
+extends ../layout
+
+block content
+  main.main.crud-form
+    h2 Аккаунт
+    if error
+      p.form__error= error
+    if saved
+      p(style="padding:1rem;background:#ecfdf5;border-radius:0.5rem;margin-bottom:1rem") Настройки сохранены.
+    if account
+      p Email: #{account.email}
+      p Роль: #{account.role === 'ADMIN' ? 'администратор' : 'пользователь'}
+      form.form(method="post" action="/account")
+        fieldset.form__fieldset
+          legend.form__legend Настройки учётной записи
+          label.form__label
+            | Отображаемое имя
+            input.form__input(type="text" name="displayName" required minlength="2" maxlength="80" value=account.displayName autocomplete="name")
+          label.form__label
+            | Новый пароль
+            input.form__input(type="password" name="password" minlength="8" autocomplete="new-password" placeholder="Оставьте пустым, если не меняете")
+          label.form__label
+            | Повтор пароля
+            input.form__input(type="password" name="passwordRepeat" minlength="8" autocomplete="new-password")
+        p(style="margin:1.5rem 0 0;display:flex;flex-wrap:wrap;gap:0.75rem")
+          button.btn.form__submit(type="submit") Сохранить
+      form(method="post" action="/logout" style="margin-top:1rem")
+        button.btn(type="submit") Выйти
+    else
+      p Сессия не найдена.
+      a.nav__link(href="/login") Войти

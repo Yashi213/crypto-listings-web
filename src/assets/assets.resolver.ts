@@ -1,4 +1,15 @@
-import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  ID,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
+import { UserRole } from '@prisma/client';
+import { PublicAccess } from '../auth/public-access.decorator';
+import { Roles } from '../auth/roles.decorator';
 import { paginatedComplexity } from '../graphql/complexity.util';
 import { PaginationArgs } from '../graphql/pagination.args';
 import { toPage } from '../graphql/paginated';
@@ -12,6 +23,7 @@ import {
   UpdateAssetInput,
 } from './graphql/asset.types';
 
+@PublicAccess()
 @Resolver(() => Asset)
 export class AssetsResolver {
   constructor(
@@ -38,11 +50,13 @@ export class AssetsResolver {
     return toPage(items, total, page, limit);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Asset, { description: 'Создать актив' })
   createAsset(@Args('input') input: CreateAssetInput) {
     return this.assetsService.create(input);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Asset, { description: 'Частично обновить актив' })
   updateAsset(
     @Args('id', { type: () => ID, description: 'ID актива' }) id: string,
@@ -51,6 +65,7 @@ export class AssetsResolver {
     return this.assetsService.update(id, input);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Boolean, { description: 'Удалить актив' })
   async removeAsset(
     @Args('id', { type: () => ID, description: 'ID актива' }) id: string,

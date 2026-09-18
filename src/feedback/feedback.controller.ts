@@ -11,13 +11,17 @@ import {
 } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
 import type { Response } from 'express';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { AdminOnly, AuthRequired } from '../auth/roles.decorator';
+import type { AuthUser } from '../auth/auth.types';
 import { viewAuth } from '../common/view-session';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
 import { UpdateFeedbackDto } from './dto/update-feedback.dto';
 import { FeedbackService } from './feedback.service';
 
 /**
- * MVC: публичный POST /feedbacks (форма), список и CRUD по /feedbacks для админки.
+ * MVC: POST /feedbacks — любой вошедший пользователь.
+ * Список, правка и удаление — только администратор.
  */
 @ApiExcludeController()
 @Controller('feedbacks')
@@ -40,16 +44,15 @@ export class FeedbackController {
     };
   }
 
+  @AdminOnly()
   @Get()
   @Render('feedbacks/index')
-  async index(
-    @Query('auth') auth?: string,
-    @Query('user') user?: string,
-  ) {
+  async index(@Query('auth') auth?: string, @Query('user') user?: string) {
     const items = await this.feedbackService.findAllForAdmin();
     return { ...this.nav(auth, user), items };
   }
 
+  @AdminOnly()
   @Get(':id/edit')
   @Render('feedbacks/edit')
   async editPage(
@@ -61,6 +64,7 @@ export class FeedbackController {
     return { ...this.nav(auth, user), feedback };
   }
 
+  @AdminOnly()
   @Get(':id')
   @Render('feedbacks/show')
   async show(
@@ -75,21 +79,22 @@ export class FeedbackController {
   /**
    * Создание отзыва с публичной страницы /feedback. Поле next — редирект после сохранения.
    */
+  @AuthRequired()
   @Post()
   async create(
     @Body() body: CreateFeedbackDto & { next?: string },
+    @CurrentUser() actor: AuthUser,
     @Res() res: Response,
   ) {
     const { next, ...dto } = body;
-    await this.feedbackService.create(dto);
+    await this.feedbackService.create(dto, actor);
     const raw = next != null ? String(next).trim() : '';
     const url =
-      raw.startsWith('/') && !raw.startsWith('//')
-        ? raw
-        : '/feedback?saved=1';
+      raw.startsWith('/') && !raw.startsWith('//') ? raw : '/feedback?saved=1';
     return res.redirect(HttpStatus.FOUND, url);
   }
 
+  @AdminOnly()
   @Post(':id/update')
   async updateForm(
     @Param('id') id: string,
@@ -103,6 +108,7 @@ export class FeedbackController {
     return res.redirect(HttpStatus.FOUND, `/feedbacks/${id}`);
   }
 
+  @AdminOnly()
   @Post(':id/delete')
   async removeForm(@Param('id') id: string, @Res() res: Response) {
     await this.feedbackService.remove(id);

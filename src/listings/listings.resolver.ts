@@ -1,5 +1,16 @@
 import { NotFoundException } from '@nestjs/common';
-import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  ID,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
+import { UserRole } from '@prisma/client';
+import { PublicAccess } from '../auth/public-access.decorator';
+import { Roles } from '../auth/roles.decorator';
 import { ListingStatus } from '@prisma/client';
 import { Asset } from '../assets/graphql/asset.types';
 import { paginatedComplexity } from '../graphql/complexity.util';
@@ -17,12 +28,15 @@ import {
 } from './graphql/listing.types';
 import { ListingsService } from './listings.service';
 
+@PublicAccess()
 @Resolver(() => Listing)
 export class ListingsResolver {
   constructor(private readonly listingsService: ListingsService) {}
 
   @Query(() => Listing, { description: 'Один листинг по id' })
-  listing(@Args('id', { type: () => ID, description: 'ID листинга' }) id: string) {
+  listing(
+    @Args('id', { type: () => ID, description: 'ID листинга' }) id: string,
+  ) {
     return this.listingsService.findOne(id);
   }
 
@@ -40,11 +54,13 @@ export class ListingsResolver {
     return toPage(items, total, page, limit);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Listing, { description: 'Создать листинг' })
   createListing(@Args('input') input: CreateListingInput) {
     return this.listingsService.create(input);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Listing, { description: 'Частично обновить листинг' })
   updateListing(
     @Args('id', { type: () => ID, description: 'ID листинга' }) id: string,
@@ -53,6 +69,7 @@ export class ListingsResolver {
     return this.listingsService.update(id, input);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Boolean, { description: 'Удалить листинг' })
   async removeListing(
     @Args('id', { type: () => ID, description: 'ID листинга' }) id: string,
@@ -61,6 +78,7 @@ export class ListingsResolver {
     return true;
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Listing, {
     description: 'Пометить листинг как предстоящий',
   })
@@ -70,6 +88,7 @@ export class ListingsResolver {
     return this.listingsService.update(id, { status: ListingStatus.UPCOMING });
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Listing, {
     description: 'Пометить листинг как недавний (состоявшийся)',
   })
@@ -79,7 +98,10 @@ export class ListingsResolver {
     return this.listingsService.update(id, { status: ListingStatus.RECENT });
   }
 
-  @Mutation(() => TradingPair, { description: 'Добавить торговую пару к листингу' })
+  @Roles(UserRole.ADMIN)
+  @Mutation(() => TradingPair, {
+    description: 'Добавить торговую пару к листингу',
+  })
   addListingPair(
     @Args('listingId', { type: () => ID, description: 'ID листинга' })
     listingId: string,
@@ -88,6 +110,7 @@ export class ListingsResolver {
     return this.listingsService.addTradingPair(listingId, input);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Boolean, { description: 'Удалить торговую пару у листинга' })
   async removeListingPair(
     @Args('listingId', { type: () => ID, description: 'ID листинга' })
@@ -136,6 +159,7 @@ export class ListingsResolver {
   }
 }
 
+@PublicAccess()
 @Resolver(() => TradingPair)
 export class TradingPairsResolver {
   @ResolveField(() => Asset, { description: 'Базовый актив пары' })

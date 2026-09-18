@@ -16,6 +16,8 @@ import {
 import { ApiExcludeController } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
+import { AdminOnly } from '../auth/roles.decorator';
+import { PublicAccess } from '../auth/public-access.decorator';
 import { viewAuth } from '../common/view-session';
 import { ObjectStorageService } from '../object-storage/object-storage.service';
 import { logoFileMulterOptions } from '../uploads/logo-upload.util';
@@ -47,12 +49,14 @@ export class AssetsController {
     };
   }
 
+  @AdminOnly()
   @Get('add')
   @Render('assets/add')
   addPage(@Query('auth') auth?: string, @Query('user') user?: string) {
     return this.nav(auth, user);
   }
 
+  @AdminOnly()
   @Get(':id/edit')
   @Render('assets/edit')
   async editPage(
@@ -64,6 +68,7 @@ export class AssetsController {
     return { ...this.nav(auth, user), asset };
   }
 
+  @PublicAccess()
   @Get()
   @Render('assets/index')
   async index(
@@ -74,6 +79,7 @@ export class AssetsController {
     return { ...this.nav(auth, user), items };
   }
 
+  @PublicAccess()
   @Get(':id')
   @Render('assets/show')
   async show(
@@ -85,6 +91,7 @@ export class AssetsController {
     return { ...this.nav(auth, user), asset };
   }
 
+  @AdminOnly()
   @Post()
   @UseInterceptors(FileInterceptor('logoFile', logoFileMulterOptions()))
   async create(
@@ -105,6 +112,7 @@ export class AssetsController {
     return res.redirect(HttpStatus.FOUND, `/assets/${created.id}`);
   }
 
+  @AdminOnly()
   @Post(':id/update')
   @UseInterceptors(FileInterceptor('logoFile', logoFileMulterOptions()))
   async updateForm(
@@ -127,17 +135,20 @@ export class AssetsController {
     return res.redirect(HttpStatus.FOUND, `/assets/${id}`);
   }
 
+  @AdminOnly()
   @Post(':id/delete')
   async removeForm(@Param('id') id: string, @Res() res: Response) {
     await this.assetsService.remove(id);
     return res.redirect(HttpStatus.FOUND, '/assets');
   }
 
+  @AdminOnly()
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateAssetDto) {
     return this.assetsService.update(id, dto);
   }
 
+  @AdminOnly()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.assetsService.remove(id);

@@ -19,8 +19,10 @@ block content
         else
           | —
     nav.record-detail__actions
-      a.nav__link(href=`/assets/${asset.id}/edit`) Редактировать
+      if isAdmin
+        a.nav__link(href=`/assets/${asset.id}/edit`) Редактировать
       a.nav__link(href="/assets") К списку
-    .record-detail__danger
-      form.inline-delete(method="post" action=`/assets/${asset.id}/delete` onsubmit="return confirm('Удалить?');")
-        button.link-button(type="submit") Удалить
+    if isAdmin
+      .record-detail__danger
+        form.inline-delete(method="post" action=`/assets/${asset.id}/delete` onsubmit="return confirm('Удалить?');")
+          button.link-button(type="submit") Удалить

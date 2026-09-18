@@ -16,6 +16,8 @@ import {
 import { ApiExcludeController } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { Observable } from 'rxjs';
+import { AdminOnly } from '../auth/roles.decorator';
+import { PublicAccess } from '../auth/public-access.decorator';
 import { viewAuth } from '../common/view-session';
 import { ListingsSseService } from './listings-sse.service';
 import { ListingsService } from './listings.service';
@@ -32,6 +34,7 @@ export class ListingsController {
   ) {}
 
   /** Выше маршрутов с :id, иначе "stream" попадёт в параметр id. */
+  @PublicAccess()
   @Sse('stream')
   listingsStream(): Observable<MessageEvent> {
     return this.listingsSseService.events();
@@ -53,6 +56,7 @@ export class ListingsController {
     };
   }
 
+  @AdminOnly()
   @Get('add')
   @Render('listings/add')
   async addPage(
@@ -63,6 +67,7 @@ export class ListingsController {
     return { ...this.nav(auth, user), exchanges, assets };
   }
 
+  @AdminOnly()
   @Get(':id/edit')
   @Render('listings/edit')
   async editPage(
@@ -84,6 +89,7 @@ export class ListingsController {
     };
   }
 
+  @PublicAccess()
   @Get()
   @Render('listings/index')
   async index(
@@ -94,6 +100,7 @@ export class ListingsController {
     return { ...this.nav(auth, user), items };
   }
 
+  @PublicAccess()
   @Get(':id')
   @Render('listings/show')
   async show(
@@ -108,6 +115,7 @@ export class ListingsController {
     return { ...this.nav(auth, user), listing, assets };
   }
 
+  @AdminOnly()
   @Post()
   async create(@Body() dto: CreateListingDto, @Res() res: Response) {
     const created = await this.listingsService.create(dto);
@@ -115,6 +123,7 @@ export class ListingsController {
     return res.redirect(HttpStatus.FOUND, `/listings/${created.id}`);
   }
 
+  @AdminOnly()
   @Post(':id/update')
   async updateForm(
     @Param('id') id: string,
@@ -125,12 +134,14 @@ export class ListingsController {
     return res.redirect(HttpStatus.FOUND, `/listings/${id}`);
   }
 
+  @AdminOnly()
   @Post(':id/delete')
   async removeForm(@Param('id') id: string, @Res() res: Response) {
     await this.listingsService.remove(id);
     return res.redirect(HttpStatus.FOUND, '/listings');
   }
 
+  @AdminOnly()
   @Post(':id/pairs/:pairId/delete')
   async removePairForm(
     @Param('id') listingId: string,
@@ -141,6 +152,7 @@ export class ListingsController {
     return res.redirect(HttpStatus.FOUND, `/listings/${listingId}`);
   }
 
+  @AdminOnly()
   @Post(':id/pairs')
   async addPairForm(
     @Param('id') listingId: string,
@@ -151,11 +163,13 @@ export class ListingsController {
     return res.redirect(HttpStatus.FOUND, `/listings/${listingId}`);
   }
 
+  @AdminOnly()
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateListingDto) {
     return this.listingsService.update(id, dto);
   }
 
+  @AdminOnly()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.listingsService.remove(id);

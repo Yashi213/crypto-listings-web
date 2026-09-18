@@ -14,7 +14,10 @@ export class UpdateFeedbackDto {
   message?: string;
 
   @IsOptional()
-  @ValidateIf((o) => o.rating !== undefined && String(o.rating).trim() !== '')
+  @ValidateIf(
+    (o: UpdateFeedbackDto) =>
+      o.rating !== undefined && String(o.rating).trim() !== '',
+  )
   @Matches(/^[1-5]$/)
   rating?: string;
 }

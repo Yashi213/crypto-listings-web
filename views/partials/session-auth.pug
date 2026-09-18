@@ -1,3 +1,8 @@
-span.session-info__user Вы вошли как
-  strong= ' ' + (userName || 'Пользователь')
-a.session-info__link.session-info__link--logout(href="/?auth=0") Выйти
+span.session-info__user
+  | Вы вошли как
+  a.session-info__user-link(href="/account")
+    strong= ' ' + (userName || 'Пользователь')
+  if isAdmin
+    |  (админ)
+form.session-info__logout(method="post" action="/logout")
+  button.session-info__link.session-info__link--logout(type="submit") Выйти

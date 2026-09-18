@@ -1,5 +1,16 @@
 import { NotFoundException } from '@nestjs/common';
-import { Args, ID, Mutation, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  ID,
+  Mutation,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
+import { UserRole } from '@prisma/client';
+import { PublicAccess } from '../auth/public-access.decorator';
+import { Roles } from '../auth/roles.decorator';
 import { Exchange } from '../exchanges/graphql/exchange.types';
 import { paginatedComplexity } from '../graphql/complexity.util';
 import { PaginationArgs } from '../graphql/pagination.args';
@@ -12,6 +23,7 @@ import {
 } from './graphql/market-news.types';
 import { MarketNewsService } from './market-news.service';
 
+@PublicAccess()
 @Resolver(() => MarketNews)
 export class MarketNewsResolver {
   constructor(private readonly marketNewsService: MarketNewsService) {}
@@ -37,11 +49,13 @@ export class MarketNewsResolver {
     return toPage(items, total, page, limit);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => MarketNews, { description: 'Создать новость' })
   createMarketNews(@Args('input') input: CreateMarketNewsInput) {
     return this.marketNewsService.create(input);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => MarketNews, { description: 'Частично обновить новость' })
   updateMarketNews(
     @Args('id', { type: () => ID, description: 'ID новости' }) id: string,
@@ -50,6 +64,7 @@ export class MarketNewsResolver {
     return this.marketNewsService.update(id, input);
   }
 
+  @Roles(UserRole.ADMIN)
   @Mutation(() => Boolean, { description: 'Удалить новость' })
   async removeMarketNews(
     @Args('id', { type: () => ID, description: 'ID новости' }) id: string,

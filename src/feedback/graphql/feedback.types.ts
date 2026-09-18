@@ -1,7 +1,6 @@
 import { Field, ID, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { UserRole } from '@prisma/client';
 import {
-  IsEmail,
   IsInt,
   IsOptional,
   IsString,
@@ -62,30 +61,14 @@ export class CreateFeedbackInput {
   @Min(1)
   @Max(5)
   rating?: number;
-
-  @Field(() => String, { nullable: true, description: 'ФИО (вместе с email)' })
-  @IsOptional()
-  @ValidateIf(
-    (o: CreateFeedbackInput) =>
-      !!String(o.email ?? '').trim() || !!String(o.displayName ?? '').trim(),
-  )
-  @IsString()
-  @MinLength(3)
-  displayName?: string;
-
-  @Field(() => String, { nullable: true, description: 'Email (вместе с ФИО)' })
-  @IsOptional()
-  @ValidateIf(
-    (o: CreateFeedbackInput) =>
-      !!String(o.email ?? '').trim() || !!String(o.displayName ?? '').trim(),
-  )
-  @IsEmail()
-  email?: string;
 }
 
 @InputType({ description: 'Данные для частичного обновления отзыва' })
 export class UpdateFeedbackInput {
-  @Field(() => String, { nullable: true, description: 'Текст (минимум 10 символов)' })
+  @Field(() => String, {
+    nullable: true,
+    description: 'Текст (минимум 10 символов)',
+  })
   @IsOptional()
   @IsString()
   @MinLength(10)

@@ -5,10 +5,13 @@ import {
   HttpException,
   HttpStatus,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { GqlArgumentsHost } from '@nestjs/graphql';
 import { Prisma } from '@prisma/client';
 import type { Request, Response } from 'express';
-import { viewAuth } from '../view-session';
+import SuperTokens from 'supertokens-node';
+import { errorHandler } from 'supertokens-node/framework/express';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -16,6 +19,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
   catch(exception: unknown, host: ArgumentsHost): unknown {
     if (host.getType<string>() === 'graphql') {
+      const req = GqlArgumentsHost.create(host).getContext<{
+        req?: Request;
+      }>()?.req;
+      if (
+        exception instanceof HttpException &&
+        exception.getStatus() === 403 &&
+        !req?.currentUser
+      ) {
+        return new UnauthorizedException('Нужна аутентификация');
+      }
       return exception;
     }
 
@@ -23,10 +36,21 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const res = ctx.getResponse<Response>();
     const req = ctx.getRequest<Request>();
 
+    if (SuperTokens.Error.isErrorFromSuperTokens(exception)) {
+      void errorHandler()(exception, req, res, () => {
+        this.send(req, res, HttpStatus.UNAUTHORIZED, 'Ошибка аутентификации');
+      });
+      return;
+    }
+
     if (exception instanceof HttpException) {
-      const status = exception.getStatus();
+      const originalStatus = exception.getStatus();
+      const unauthenticated = originalStatus === 403 && !req.currentUser;
+      const status = unauthenticated ? HttpStatus.UNAUTHORIZED : originalStatus;
       const body = exception.getResponse() as string | Record<string, unknown>;
-      const message = this.normalizeMessage(body);
+      const message = unauthenticated
+        ? 'Нужна аутентификация'
+        : this.normalizeMessage(body);
       this.send(req, res, status, message);
       return;
     }
@@ -72,9 +96,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     return false;
   }
 
-  private normalizeMessage(
-    body: string | Record<string, unknown>,
-  ): string {
+  private normalizeMessage(body: string | Record<string, unknown>): string {
     if (typeof body === 'string') return body;
     const msg = body.message;
     if (Array.isArray(msg)) return msg.map(String).join('; ');
@@ -83,11 +105,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
   }
 
   private mvcLocals(req: Request, status: number, message: string) {
-    const q = req.query;
-    const auth = typeof q.auth === 'string' ? q.auth : undefined;
-    const user = typeof q.user === 'string' ? q.user : undefined;
+    const sessionUser = req.currentUser;
     return {
-      ...viewAuth(auth, user),
+      isAuth: Boolean(sessionUser),
+      userName: sessionUser?.displayName ?? '',
+      isAdmin: sessionUser?.role === 'ADMIN',
       pageTitle: `Ошибка ${status} — Listing Tracker`,
       errorStatus: status,
       errorMessage: message,
@@ -121,10 +143,19 @@ export class AllExceptionsFilter implements ExceptionFilter {
       return;
     }
 
+    if (
+      !req.currentUser &&
+      (status === 401 || status === 403) &&
+      (req.method === 'GET' || req.method === 'HEAD') &&
+      !req.path.startsWith('/login')
+    ) {
+      const nextUrl = encodeURIComponent(req.originalUrl || req.url || '/');
+      res.redirect(302, `/login?next=${nextUrl}`);
+      return;
+    }
+
     if (typeof res.render === 'function') {
-      res
-        .status(status)
-        .render('error', this.mvcLocals(req, status, message));
+      res.status(status).render('error', this.mvcLocals(req, status, message));
       return;
     }
 
@@ -137,9 +168,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
     return `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Ошибка ${status}</title></head><body><h1>Ошибка ${status}</h1><p>${esc(message)}</p><p><a href="/">На главную</a></p></body></html>`;
   }
 
-  private mapPrismaError(
-    err: Prisma.PrismaClientKnownRequestError,
-  ): { status: number; message: string } {
+  private mapPrismaError(err: Prisma.PrismaClientKnownRequestError): {
+    status: number;
+    message: string;
+  } {
     switch (err.code) {
       case 'P2002':
         return {

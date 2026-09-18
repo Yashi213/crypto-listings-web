@@ -3,8 +3,9 @@ extends ../layout
 block content
   main.main
     h2 Новости рынка
-    p.crud-toolbar
-      a.btn(href="/market-news/add") + Добавить новость
+    if isAdmin
+      p.crud-toolbar
+        a.btn(href="/market-news/add") + Добавить новость
     if items.length === 0
       p Записей нет. Нужна хотя бы одна биржа в&nbsp;
         a(href="/exchanges") справочнике
@@ -27,7 +28,10 @@ block content
               td(data-label="Дата")= n.publishedAt.toLocaleString('ru-RU')
               td(data-label="Порядок")= n.sortOrder
               td.stats-table__actions(data-label="Действия")
-                a(href=`/market-news/${n.id}/edit`) Изменить
-                |  
-                form.inline-delete(method="post" action=`/market-news/${n.id}/delete` style="display:inline" onsubmit="return confirm('Удалить новость?');")
-                  button.link-button(type="submit") Удалить
+                if isAdmin
+                  a(href=`/market-news/${n.id}/edit`) Изменить
+                  |  
+                  form.inline-delete(method="post" action=`/market-news/${n.id}/delete` style="display:inline" onsubmit="return confirm('Удалить новость?');")
+                    button.link-button(type="submit") Удалить
+                else
+                  | —

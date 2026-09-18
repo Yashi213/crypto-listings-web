@@ -3,8 +3,9 @@ extends ../layout
 block content
   main.main
     h2 Биржи
-    p.crud-toolbar
-      a.btn(href="/exchanges/add") + Добавить биржу
+    if isAdmin
+      p.crud-toolbar
+        a.btn(href="/exchanges/add") + Добавить биржу
     if exchanges.length === 0
       p Пока нет записей. Создайте первую биржу.
     else
@@ -25,7 +26,10 @@ block content
                 else
                   | —
               td.stats-table__actions(data-label="Действия")
-                a(href=`/exchanges/${ex.id}/edit`) Изменить
-                |  
-                form.inline-delete(method="post" action=`/exchanges/${ex.id}/delete` style="display:inline" onsubmit="return confirm('Удалить биржу? Связанные листинги и новости тоже могут быть затронуты.');")
-                  button.link-button(type="submit") Удалить
+                if isAdmin
+                  a(href=`/exchanges/${ex.id}/edit`) Изменить
+                  |  
+                  form.inline-delete(method="post" action=`/exchanges/${ex.id}/delete` style="display:inline" onsubmit="return confirm('Удалить биржу? Связанные листинги и новости тоже могут быть затронуты.');")
+                    button.link-button(type="submit") Удалить
+                else
+                  | —

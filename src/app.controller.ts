@@ -1,24 +1,18 @@
-import { Controller, Get, Query, Redirect, Render } from '@nestjs/common';
+import { Controller, Get, Query, Render } from '@nestjs/common';
 import { ApiExcludeController } from '@nestjs/swagger';
+import { PublicAccess } from './auth/public-access.decorator';
 import { viewAuth } from './common/view-session';
 import { FeedbackService } from './feedback/feedback.service';
 import { ListingsService } from './listings/listings.service';
 
 @ApiExcludeController()
+@PublicAccess()
 @Controller()
 export class AppController {
   constructor(
     private readonly listingsService: ListingsService,
     private readonly feedbackService: FeedbackService,
   ) {}
-
-  @Get('login')
-  @Redirect('/?auth=1&user=Гость', 302)
-  getLogin() {}
-
-  @Get('register')
-  @Redirect('/?auth=1&user=Новый%20пользователь', 302)
-  getRegister() {}
 
   @Get()
   @Render('listing')

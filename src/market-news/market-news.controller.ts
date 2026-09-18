@@ -16,6 +16,8 @@ import {
 import { ApiExcludeController } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { Observable } from 'rxjs';
+import { AdminOnly } from '../auth/roles.decorator';
+import { PublicAccess } from '../auth/public-access.decorator';
 import { viewAuth } from '../common/view-session';
 import { ExchangesService } from '../exchanges/exchanges.service';
 import { MarketNewsService } from './market-news.service';
@@ -33,6 +35,7 @@ export class MarketNewsController {
   ) {}
 
   /** Должен быть выше @Get(':id'), иначе "stream" попадёт в :id и SSE не откроется. */
+  @PublicAccess()
   @Sse('stream')
   newsStream(): Observable<MessageEvent> {
     return this.marketNewsSseService.events();
@@ -54,6 +57,7 @@ export class MarketNewsController {
     };
   }
 
+  @AdminOnly()
   @Get('add')
   @Render('market-news/add')
   async addPage(
@@ -64,6 +68,7 @@ export class MarketNewsController {
     return { ...this.nav(auth, user), exchanges };
   }
 
+  @AdminOnly()
   @Get(':id/edit')
   @Render('market-news/edit')
   async editPage(
@@ -84,6 +89,7 @@ export class MarketNewsController {
     };
   }
 
+  @PublicAccess()
   @Get()
   @Render('market-news/index')
   async index(
@@ -94,6 +100,7 @@ export class MarketNewsController {
     return { ...this.nav(auth, user), items };
   }
 
+  @PublicAccess()
   @Get(':id')
   @Render('market-news/show')
   async show(
@@ -105,6 +112,7 @@ export class MarketNewsController {
     return { ...this.nav(auth, user), news };
   }
 
+  @AdminOnly()
   @Post()
   async create(@Body() dto: CreateMarketNewDto, @Res() res: Response) {
     const created = await this.marketNewsService.create(dto);
@@ -112,6 +120,7 @@ export class MarketNewsController {
     return res.redirect(HttpStatus.FOUND, `/market-news/${created.id}`);
   }
 
+  @AdminOnly()
   @Post(':id/update')
   async updateForm(
     @Param('id') id: string,
@@ -122,17 +131,20 @@ export class MarketNewsController {
     return res.redirect(HttpStatus.FOUND, `/market-news/${id}`);
   }
 
+  @AdminOnly()
   @Post(':id/delete')
   async removeForm(@Param('id') id: string, @Res() res: Response) {
     await this.marketNewsService.remove(id);
     return res.redirect(HttpStatus.FOUND, '/market-news');
   }
 
+  @AdminOnly()
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateMarketNewDto) {
     return this.marketNewsService.update(id, dto);
   }
 
+  @AdminOnly()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.marketNewsService.remove(id);

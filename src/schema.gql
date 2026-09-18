@@ -94,12 +94,6 @@ input CreateExchangeInput {
 
 """Данные для создания отзыва"""
 input CreateFeedbackInput {
-  """ФИО (вместе с email)"""
-  displayName: String
-
-  """Email (вместе с ФИО)"""
-  email: String
-
   """Текст (минимум 10 символов)"""
   message: String!
 
@@ -403,7 +397,7 @@ type Mutation {
   """Создать биржу"""
   createExchange(input: CreateExchangeInput!): Exchange!
 
-  """Создать отзыв"""
+  """Создать отзыв (только зарегистрированный пользователь)"""
   createFeedback(input: CreateFeedbackInput!): Feedback!
 
   """Создать листинг"""

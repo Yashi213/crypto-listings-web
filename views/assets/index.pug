@@ -3,8 +3,9 @@ extends ../layout
 block content
   main.main
     h2 Активы (монеты / токены)
-    p.crud-toolbar
-      a.btn(href="/assets/add") + Добавить актив
+    if isAdmin
+      p.crud-toolbar
+        a.btn(href="/assets/add") + Добавить актив
     if items.length === 0
       p Справочник пуст. Добавьте тикеры (BTC, USDT, …) для листингов и пар.
     else
@@ -21,7 +22,10 @@ block content
                 a(href=`/assets/${a.id}`)= a.symbol
               td(data-label="Название")= a.name
               td.stats-table__actions(data-label="Действия")
-                a(href=`/assets/${a.id}/edit`) Изменить
-                |  
-                form.inline-delete(method="post" action=`/assets/${a.id}/delete` style="display:inline" onsubmit="return confirm('Удалить актив? Его нельзя удалить, если он используется.');")
-                  button.link-button(type="submit") Удалить
+                if isAdmin
+                  a(href=`/assets/${a.id}/edit`) Изменить
+                  |  
+                  form.inline-delete(method="post" action=`/assets/${a.id}/delete` style="display:inline" onsubmit="return confirm('Удалить актив? Его нельзя удалить, если он используется.');")
+                    button.link-button(type="submit") Удалить
+                else
+                  | —

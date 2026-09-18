@@ -24,12 +24,13 @@ block content
         each pair in listing.pairs
           li
             = pair.baseAsset.symbol + '/' + pair.quoteAsset.symbol
-            |  
-            form.inline-delete(method="post" action=`/listings/${listing.id}/pairs/${pair.id}/delete` style="display:inline;margin-left:0.5rem" onsubmit="return confirm('Удалить пару?');")
-              button.link-button(type="submit") Удалить
+            if isAdmin
+              |  
+              form.inline-delete(method="post" action=`/listings/${listing.id}/pairs/${pair.id}/delete` style="display:inline;margin-left:0.5rem" onsubmit="return confirm('Удалить пару?');")
+                button.link-button(type="submit") Удалить
     else
       p Пар пока нет.
-    if assets.length >= 2
+    if isAdmin && assets.length >= 2
       h4 Добавить пару
       form.form(method="post" action=`/listings/${listing.id}/pairs` style="max-width:28rem")
         label.form__label
@@ -44,13 +45,15 @@ block content
               option(value=a.id)= a.symbol + ' — ' + a.name
         p
           button.btn(type="submit") Добавить пару
-    else
+    else if isAdmin
       p Для пар нужно минимум два актива в&nbsp;
         a(href="/assets") справочнике
         | .
     nav.record-detail__actions
-      a.nav__link(href=`/listings/${listing.id}/edit`) Редактировать
+      if isAdmin
+        a.nav__link(href=`/listings/${listing.id}/edit`) Редактировать
       a.nav__link(href="/listings") К списку
-    .record-detail__danger
-      form.inline-delete(method="post" action=`/listings/${listing.id}/delete` onsubmit="return confirm('Удалить листинг?');")
-        button.link-button(type="submit") Удалить
+    if isAdmin
+      .record-detail__danger
+        form.inline-delete(method="post" action=`/listings/${listing.id}/delete` onsubmit="return confirm('Удалить листинг?');")
+          button.link-button(type="submit") Удалить

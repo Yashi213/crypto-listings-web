@@ -11,41 +11,21 @@ block content
     section.feedback-section
       h2 Обратная связь
       p Мы ценим ваше мнение! Поделитесь своими впечатлениями о нашем сервисе или задайте вопрос.
-      form.feedback-form(method="post" action="/feedbacks")
+      form.feedback-form#feedback-form(
+        method="post"
+        action="/feedbacks"
+      )
         input(type="hidden" name="next" value="/feedback?saved=1")
         fieldset.form__fieldset
-          legend.form__legend Заполните форму обратной связи
-          .form__group
-            label.form__label-text(for="displayName")
-              | ФИО 
-              span.form__required *
-            input#displayName.form__input(
-              type="text"
-              name="displayName"
-              required
-              minlength="3"
-              maxlength="100"
-              pattern="[А-Яа-яЁёA-Za-z\\s]{3,}"
-              placeholder="Иванов Иван Иванович"
-            )
-          .form__group
-            label.form__label-text(for="email")
-              | Email 
-              span.form__required *
-            input#email.form__input(
-              type="email"
-              name="email"
-              required
-              placeholder="example@mail.com"
-            )
+          legend.form__legend= isAuth ? `Отзыв от ${userName}` : 'Оставить отзыв'
           .form__group
             label.form__label-text(for="message")
               | Комментарий 
               span.form__required *
             textarea#message.form__textarea(
               name="message"
-              required
-              minlength="10"
+              required=isAuth
+              minlength=isAuth ? "10" : undefined
               maxlength="1000"
               rows="5"
               placeholder="Ваш отзыв или вопрос..."
@@ -60,7 +40,10 @@ block content
               option(value="2") Плохо (2)
               option(value="1") Очень плохо (1)
           div(style="display:flex;gap:1rem;flex-wrap:wrap")
-            button.form__submit(type="submit") Отправить отзыв
+            if isAuth
+              button.form__submit(type="submit") Отправить отзыв
+            else
+              a.form__submit(href="/login?next=/feedback") Отправить отзыв
     section.feedback-list-section
       h2 Отзывы пользователей
       if recentFeedbacks.length === 0

@@ -16,6 +16,8 @@ import {
 import { ApiExcludeController } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
+import { AdminOnly } from '../auth/roles.decorator';
+import { PublicAccess } from '../auth/public-access.decorator';
 import { viewAuth } from '../common/view-session';
 import { ObjectStorageService } from '../object-storage/object-storage.service';
 import { logoFileMulterOptions } from '../uploads/logo-upload.util';
@@ -47,12 +49,14 @@ export class ExchangesController {
     };
   }
 
+  @AdminOnly()
   @Get('add')
   @Render('exchanges/add')
   addPage(@Query('auth') auth?: string, @Query('user') user?: string) {
     return this.navExchanges(auth, user);
   }
 
+  @AdminOnly()
   @Get(':id/edit')
   @Render('exchanges/edit')
   async editPage(
@@ -67,6 +71,7 @@ export class ExchangesController {
     };
   }
 
+  @PublicAccess()
   @Get()
   @Render('exchanges/index')
   async index(
@@ -80,6 +85,7 @@ export class ExchangesController {
     };
   }
 
+  @PublicAccess()
   @Get(':id')
   @Render('exchanges/show')
   async show(
@@ -94,6 +100,7 @@ export class ExchangesController {
     };
   }
 
+  @AdminOnly()
   @Post()
   @UseInterceptors(FileInterceptor('logoFile', logoFileMulterOptions()))
   async create(
@@ -112,6 +119,7 @@ export class ExchangesController {
     return res.redirect(HttpStatus.FOUND, `/exchanges/${created.id}`);
   }
 
+  @AdminOnly()
   @Post(':id/update')
   @UseInterceptors(FileInterceptor('logoFile', logoFileMulterOptions()))
   async updateForm(
@@ -132,17 +140,20 @@ export class ExchangesController {
     return res.redirect(HttpStatus.FOUND, `/exchanges/${id}`);
   }
 
+  @AdminOnly()
   @Post(':id/delete')
   async removeForm(@Param('id') id: string, @Res() res: Response) {
     await this.exchangesService.remove(id);
     return res.redirect(HttpStatus.FOUND, '/exchanges');
   }
 
+  @AdminOnly()
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateExchangeDto: UpdateExchangeDto) {
     return this.exchangesService.update(id, updateExchangeDto);
   }
 
+  @AdminOnly()
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.exchangesService.remove(id);

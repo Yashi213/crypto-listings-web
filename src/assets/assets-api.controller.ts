@@ -37,9 +37,12 @@ import { AssetResponseDto } from './dto/asset-response.dto';
 import { CreateAssetDto } from './dto/create-asset.dto';
 import { UpdateAssetDto } from './dto/update-asset.dto';
 import { CacheControl } from '../common/decorators/cache-control.decorator';
+import { AdminOnly } from '../auth/roles.decorator';
+import { PublicAccess } from '../auth/public-access.decorator';
 import { AssetsService } from './assets.service';
 
 @ApiTags('Активы')
+@PublicAccess()
 @ApiExtraModels(
   ApiConflictErrorDto,
   ApiErrorResponseDto,
@@ -73,6 +76,7 @@ export class AssetsApiController {
     return items;
   }
 
+  @AdminOnly()
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Создать актив' })
@@ -96,6 +100,7 @@ export class AssetsApiController {
     return this.assetsService.findOne(id);
   }
 
+  @AdminOnly()
   @Patch(':id')
   @ApiOperation({ summary: 'Частично обновить актив' })
   @ApiParam({ name: 'id' })
@@ -110,6 +115,7 @@ export class AssetsApiController {
     return this.assetsService.update(id, dto);
   }
 
+  @AdminOnly()
   @Delete(':id')
   @ApiOperation({ summary: 'Удалить актив' })
   @ApiParam({ name: 'id' })

@@ -1,0 +1,22 @@
+extends ../layout
+
+block content
+  main.main.crud-form
+    h2 Вход
+    if error
+      p.form__error= error
+    form.form#auth-form(data-mode="signin" data-next=next)
+      fieldset.form__fieldset
+        legend.form__legend Email и пароль
+        label.form__label
+          | Email
+          input.form__input#email(type="email" name="email" required autocomplete="username")
+        label.form__label
+          | Пароль
+          input.form__input#password(type="password" name="password" required autocomplete="current-password" minlength="8")
+      p(style="margin:1.5rem 0 0;display:flex;flex-wrap:wrap;gap:0.75rem 1rem;align-items:center")
+        button.btn.form__submit(type="submit") Войти
+        a.nav__link(href="/register") Нет аккаунта? Регистрация
+
+block pageScripts
+  script(src="/js/auth-form.js")

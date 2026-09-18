@@ -40,10 +40,13 @@ import { CreateListingDto } from './dto/create-listing.dto';
 import { ListingResponseDto, TradingPairResponseDto } from './dto/listing-response.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
 import { CacheControl } from '../common/decorators/cache-control.decorator';
+import { AdminOnly } from '../auth/roles.decorator';
+import { PublicAccess } from '../auth/public-access.decorator';
 import { ListingsSseService } from './listings-sse.service';
 import { ListingsService } from './listings.service';
 
 @ApiTags('Листинги')
+@PublicAccess()
 @ApiExtraModels(
   ApiConflictErrorDto,
   ApiErrorResponseDto,
@@ -83,6 +86,7 @@ export class ListingsApiController {
     return items;
   }
 
+  @AdminOnly()
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Создать листинг' })
@@ -144,6 +148,7 @@ export class ListingsApiController {
     return items;
   }
 
+  @AdminOnly()
   @Post(':id/pairs')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Добавить торговую пару к листингу' })
@@ -165,6 +170,7 @@ export class ListingsApiController {
     return this.listingsService.addTradingPair(listingId, dto);
   }
 
+  @AdminOnly()
   @Delete(':id/pairs/:pairId')
   @ApiOperation({ summary: 'Удалить торговую пару у листинга' })
   @ApiParam({ name: 'id', description: 'ID листинга' })
@@ -189,6 +195,7 @@ export class ListingsApiController {
     return this.listingsService.findOne(id);
   }
 
+  @AdminOnly()
   @Patch(':id')
   @ApiOperation({ summary: 'Частично обновить листинг' })
   @ApiParam({ name: 'id' })
@@ -199,6 +206,7 @@ export class ListingsApiController {
     return this.listingsService.update(id, dto);
   }
 
+  @AdminOnly()
   @Delete(':id')
   @ApiOperation({ summary: 'Удалить листинг' })
   @ApiParam({ name: 'id' })

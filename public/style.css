@@ -177,6 +177,15 @@ a:hover { color: var(--secondary-color); }
     color: var(--bg-white);
 }
 
+.session-info__user-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.session-info__user-link:hover strong {
+    text-decoration: underline;
+}
+
 .session-info__link {
     display: inline-block;
     color: var(--bg-white);
@@ -189,6 +198,17 @@ a:hover { color: var(--secondary-color); }
     text-transform: uppercase;
     white-space: nowrap;
     border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.session-info__logout {
+    display: inline;
+    margin: 0;
+}
+
+.session-info__logout button.session-info__link {
+    cursor: pointer;
+    font-family: inherit;
+    background: transparent;
 }
 
 .session-info__link:hover {
@@ -1038,6 +1058,13 @@ strong { font-weight: 700; color: var(--text-dark); }
 
 .form__submit:active {
     transform: translateY(0);
+}
+
+a.form__submit {
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
 }
 
 .feedback-list-section {

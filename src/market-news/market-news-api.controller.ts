@@ -36,9 +36,12 @@ import { MarketNewsResponseDto } from './dto/market-news-response.dto';
 import { UpdateMarketNewDto } from './dto/update-market-new.dto';
 import { MarketNewsService } from './market-news.service';
 import { CacheControl } from '../common/decorators/cache-control.decorator';
+import { AdminOnly } from '../auth/roles.decorator';
+import { PublicAccess } from '../auth/public-access.decorator';
 import { MarketNewsSseService } from './market-news-sse.service';
 
 @ApiTags('Новости рынка')
+@PublicAccess()
 @ApiExtraModels(
   ApiErrorResponseDto,
   ApiNotFoundErrorDto,
@@ -74,6 +77,7 @@ export class MarketNewsApiController {
     return items;
   }
 
+  @AdminOnly()
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Создать новость' })
@@ -99,6 +103,7 @@ export class MarketNewsApiController {
     return this.marketNewsService.findOne(id);
   }
 
+  @AdminOnly()
   @Patch(':id')
   @ApiOperation({ summary: 'Частично обновить новость' })
   @ApiParam({ name: 'id' })
@@ -113,6 +118,7 @@ export class MarketNewsApiController {
     return updated;
   }
 
+  @AdminOnly()
   @Delete(':id')
   @ApiOperation({ summary: 'Удалить новость' })
   @ApiParam({ name: 'id' })
