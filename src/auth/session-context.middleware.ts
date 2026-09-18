@@ -13,9 +13,7 @@ export class SessionContextMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     try {
-      const session = await Session.getSession(req, res, {
-        sessionRequired: false,
-      });
+      const session = await this.loadSession(req, res);
       if (!session) {
         next();
         return;
@@ -27,6 +25,29 @@ export class SessionContextMiddleware implements NestMiddleware {
       next();
     } catch (error) {
       next(error);
+    }
+  }
+
+  /**
+   * Access JWT живёт коротко. Без фронтового SDK Pug сам refresh не вызывает —
+   * тогда getSession кидает TRY_REFRESH_TOKEN и пользователь видит JSON.
+   * Здесь обновляем сессию на сервере и продолжаем запрос.
+   */
+  private async loadSession(req: Request, res: Response) {
+    try {
+      return await Session.getSession(req, res, { sessionRequired: false });
+    } catch (error) {
+      if (
+        !Session.Error.isErrorFromSuperTokens(error) ||
+        error.type !== Session.Error.TRY_REFRESH_TOKEN
+      ) {
+        throw error;
+      }
+      try {
+        return await Session.refreshSession(req, res);
+      } catch {
+        return undefined;
+      }
     }
   }
 }
